@@ -26,6 +26,8 @@ import { planUpgrade, isUpgradeEmpty, buildUpgradeWrite, DEFAULT_UPGRADE_POLICY,
 
 export { deriveDeploymentContract };
 export { planUpgrade, isUpgradeEmpty, buildUpgradeWrite, DEFAULT_UPGRADE_POLICY, summarizeUpgrade };
+// create-packkit as a @packkit/core PackkitGenerator (the platform interface).
+export { packkitGenerator, GENERATOR_ID } from './generator.js';
 
 // Bumped when the shape of PackkitProjectDefinition changes incompatibly.
 export const SCHEMA_VERSION = 2;
