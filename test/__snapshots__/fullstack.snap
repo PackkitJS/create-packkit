@@ -1,0 +1,733 @@
+===== .editorconfig =====
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+
+[*.{json,yml,yaml,md}]
+indent_style = space
+indent_size = 2
+
+===== .github/ISSUE_TEMPLATE/bug_report.md =====
+---
+name: Bug report
+about: Report a problem
+labels: bug
+---
+
+**Describe the bug**
+
+**To reproduce**
+
+**Expected behavior**
+
+**Environment**
+- Version:
+- Node:
+- OS:
+
+===== .github/ISSUE_TEMPLATE/feature_request.md =====
+---
+name: Feature request
+about: Suggest an idea
+labels: enhancement
+---
+
+**Problem**
+
+**Proposed solution**
+
+**Alternatives considered**
+
+===== .github/PULL_REQUEST_TEMPLATE.md =====
+## Summary
+
+<!-- What does this change and why? -->
+
+## Checklist
+
+- [ ] Tests pass
+- [ ] Lint & types pass
+- [ ] Docs updated if needed
+
+===== .github/workflows/ci.yml =====
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+
+===== .gitignore =====
+# dependencies
+node_modules/
+.pnp.*
+.yarn/*
+
+# build output
+dist/
+coverage/
+*.tsbuildinfo
+
+# test artifacts (Playwright)
+test-results/
+playwright-report/
+playwright/.cache/
+
+# logs
+*.log
+npm-debug.log*
+
+# env & editor
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+===== .npmrc =====
+engine-strict=true
+
+===== .prettierrc.json =====
+{
+  "useTabs": true,
+  "singleQuote": true,
+  "semi": true,
+  "printWidth": 100,
+  "trailingComma": "all"
+}
+
+===== AGENTS.md =====
+# AGENTS.md
+
+Guidance for AI coding agents working in **fixture**.
+
+## Stack
+
+- Language: TypeScript (strict)
+- Module format: ESM
+- Package manager: pnpm
+- Bundler: tsup
+- Tests: vitest
+- Lint/format: eslint-prettier
+
+## Commands
+
+- Type-check: `pnpm typecheck`
+- Lint: `pnpm lint`
+- Test: `pnpm test`
+- Build: `pnpm build`
+
+## Conventions
+
+- Source lives in `src/`. Keep the public API in `src/index.ts`.
+- Add or update tests for any behavior change.
+- Prefer explicit types on exported functions; keep `strict` passing.
+- Do not commit `dist/` or `node_modules/`.
+
+===== CLAUDE.md =====
+See [AGENTS.md](./AGENTS.md) for build/test commands and conventions.
+
+===== CODE_OF_CONDUCT.md =====
+# Code of Conduct
+
+This project follows the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
+By participating, you are expected to uphold this code. Report unacceptable
+behavior to the maintainers.
+
+===== CONTRIBUTING.md =====
+# Contributing
+
+Thanks for your interest in contributing!
+
+## Development
+
+```sh
+pnpm install
+pnpm test
+```
+
+## Pull requests
+
+- Create a branch, make your change, and open a PR against `main`.
+- Make sure lint, types and tests pass.
+
+
+===== LICENSE =====
+MIT License
+
+Copyright (c) 2026 Fixture Author <fixture@example.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+===== README.md =====
+# fixture
+
+A fixture project.
+
+## Layout
+
+```
+apps/web       React + Vite front end
+apps/server    Hono API (also serves the web build in production)
+packages/shared  types and helpers both sides import
+```
+
+## Develop
+
+```sh
+pnpm install
+pnpm dev     # web on :5173, api on :3000
+```
+
+Vite proxies `/api` to the server, so requests are same-origin in development exactly as they are in production — no CORS, no environment-specific base URL.
+
+## Production
+
+```sh
+pnpm build
+pnpm start   # one process serving the API and the built web app
+```
+
+`@fixture/shared` is built before either app starts, so a change to a shared type surfaces as a type error on both sides rather than at runtime.
+
+## License
+
+MIT © Fixture Author <fixture@example.com>
+
+===== SECURITY.md =====
+# Security Policy
+
+If you discover a security vulnerability, please **do not** open a public issue.
+Instead, report it privately to the maintainers (e.g. via GitHub Security
+Advisories). We will respond as quickly as possible.
+
+===== apps/server/package.json =====
+{
+  "name": "@fixture/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup src/index.ts --format esm --clean",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "hono": "^4.5.0",
+    "@hono/node-server": "^2.0.0",
+    "@fixture/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "tsup": "^8.0.0"
+  }
+}
+
+===== apps/server/src/app.test.ts =====
+import { describe, it, expect } from 'vitest';
+import { app } from './app.js';
+
+describe('api', () => {
+	it('reports health', async () => {
+		const res = await app.request('/api/health');
+		expect(res.status).toBe(200);
+		expect(await res.json()).toMatchObject({ ok: true });
+	});
+});
+
+===== apps/server/src/app.ts =====
+import { Hono } from 'hono';
+import { serveStatic } from '@hono/node-server/serve-static';
+import type { Health } from '@fixture/shared';
+
+export const app = new Hono();
+
+app.get('/api/health', (c) => {
+	const body: Health = { ok: true, service: 'fixture', uptime: process.uptime() };
+	return c.json(body);
+});
+
+// In production the API also serves the built web app, so one process and
+// one port covers the whole thing. In dev, Vite serves the app and proxies
+// /api here instead (see apps/web/vite.config.ts).
+if (process.env.NODE_ENV === 'production') {
+	app.use('/*', serveStatic({ root: '../web/dist' }));
+}
+
+===== apps/server/src/index.ts =====
+import { serve } from '@hono/node-server';
+import { app } from './app.js';
+
+const port = Number(process.env.PORT ?? 3000);
+serve({ fetch: app.fetch, port });
+console.log(`Listening on http://localhost:${port}`);
+
+===== apps/server/tsconfig.json =====
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "src"
+  ]
+}
+
+===== apps/web/index.html =====
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>fixture</title>
+	</head>
+	<body>
+		<div id="root"></div>
+		<script type="module" src="/src/main.tsx"></script>
+	</body>
+</html>
+
+===== apps/web/package.json =====
+{
+  "name": "@fixture/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@fixture/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^8.0.0",
+    "@vitejs/plugin-react": "^6.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/dom": "^10.0.0",
+    "jsdom": "^29.0.0"
+  }
+}
+
+===== apps/web/src/App.test.tsx =====
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { App } from './App.js';
+
+describe('App', () => {
+	it('renders the service name', () => {
+		render(<App />);
+		expect(screen.getByRole('heading', { name: 'fixture' })).toBeDefined();
+	});
+});
+
+===== apps/web/src/App.tsx =====
+import { useEffect, useState } from 'react';
+import { describeHealth, type Health } from '@fixture/shared';
+
+export function App() {
+	const [health, setHealth] = useState<Health | null>(null);
+
+	useEffect(() => {
+		fetch('/api/health')
+			.then((r) => r.json() as Promise<Health>)
+			.then(setHealth)
+			.catch(() => setHealth({ ok: false, service: 'fixture', uptime: 0 }));
+	}, []);
+
+	return (
+		<main>
+			<h1>fixture</h1>
+			<p>{health ? describeHealth(health) : 'Checking…'}</p>
+		</main>
+	);
+}
+
+===== apps/web/src/main.tsx =====
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from './App.js';
+
+createRoot(document.getElementById('root')!).render(
+	<StrictMode>
+		<App />
+	</StrictMode>,
+);
+
+===== apps/web/tsconfig.json =====
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "src"
+  ]
+}
+
+===== apps/web/vite.config.ts =====
+/// <reference types="vitest" />
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+	plugins: [react()],
+	// Same-origin /api in dev as in production, so no CORS and no base URL
+	// juggling between environments.
+	server: { proxy: { '/api': 'http://localhost:3000' } },
+	test: { environment: 'jsdom' },
+});
+
+===== eslint.config.js =====
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+	js.configs.recommended,
+	...tseslint.configs.recommended,
+	{ ignores: ['**/dist'] },
+);
+
+===== package.json =====
+{
+  "name": "fixture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@9.10.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "start": "pnpm --filter ./apps/server start",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.0",
+    "eslint": "^10.0.0",
+    "@eslint/js": "^10.0.0",
+    "typescript-eslint": "^8.0.0",
+    "prettier": "^3.3.0",
+    "@types/node": "^24.0.0"
+  }
+}
+
+===== packages/shared/package.json =====
+{
+  "name": "@fixture/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0"
+  }
+}
+
+===== packages/shared/src/index.test.ts =====
+import { describe, it, expect } from 'vitest';
+import { describeHealth } from './index.js';
+
+describe('example', () => {
+	it('works', () => {
+		expect(describeHealth({ ok: true, service: 'api', uptime: 12 })).toBe('api is up (12s)');
+	});
+});
+
+===== packages/shared/src/index.ts =====
+/** The shape the server returns and the web app renders. Change it once. */
+export interface Health {
+	ok: boolean;
+	service: string;
+	uptime: number;
+}
+
+export function describeHealth(h: Health): string {
+	return h.ok ? `${h.service} is up (${Math.round(h.uptime)}s)` : `${h.service} is down`;
+}
+
+===== packages/shared/tsconfig.json =====
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "src"
+  ]
+}
+
+===== packkit.json =====
+{
+  "$schema": "https://packkitjs.github.io/create-packkit/packkit.schema.json",
+  "generator": "create-packkit",
+  "preset": "fullstack",
+  "settings": {
+    "description": "A fixture project.",
+    "author": "Fixture Author <fixture@example.com>",
+    "repo": "https://github.com/fixture/fixture",
+    "monorepo": true,
+    "monorepoLayout": "fullstack",
+    "framework": "react",
+    "packageManager": "pnpm",
+    "release": "none",
+    "workflows": [
+      "ci"
+    ]
+  },
+  "baseline": {
+    "schemaVersion": 1,
+    "files": {
+      ".editorconfig": {
+        "hash": "1811c495930b03"
+      },
+      ".github/ISSUE_TEMPLATE/bug_report.md": {
+        "hash": "14665755d4fe69"
+      },
+      ".github/ISSUE_TEMPLATE/feature_request.md": {
+        "hash": "19ef8d724b4866"
+      },
+      ".github/PULL_REQUEST_TEMPLATE.md": {
+        "hash": "174297edf0cebd"
+      },
+      ".github/workflows/ci.yml": {
+        "hash": "09cd7e37936d08"
+      },
+      ".gitignore": {
+        "hash": "1fd9c31aebe75a"
+      },
+      ".npmrc": {
+        "hash": "154fbd08123dcc"
+      },
+      ".prettierrc.json": {
+        "hash": "05a19eb6a83b83"
+      },
+      "AGENTS.md": {
+        "hash": "15c592ea086c99"
+      },
+      "CLAUDE.md": {
+        "hash": "0a3e1dac8414fa"
+      },
+      "CODE_OF_CONDUCT.md": {
+        "hash": "11130d8e94d7e7"
+      },
+      "CONTRIBUTING.md": {
+        "hash": "1dcd9bc9b8a58f"
+      },
+      "LICENSE": {
+        "hash": "199a668c7eefba"
+      },
+      "README.md": {
+        "hash": "0e9c745c16edb7"
+      },
+      "SECURITY.md": {
+        "hash": "1fc69ca4db19fc"
+      },
+      "apps/server/package.json": {
+        "hash": "066a14f8e3ede4"
+      },
+      "apps/server/src/app.test.ts": {
+        "hash": "1cf4ccaaf6f723"
+      },
+      "apps/server/src/app.ts": {
+        "hash": "00b5d9f6d5ff62"
+      },
+      "apps/server/src/index.ts": {
+        "hash": "18fb55fb0915ad"
+      },
+      "apps/server/tsconfig.json": {
+        "hash": "0146dd7acc6fdf"
+      },
+      "apps/web/index.html": {
+        "hash": "0f82ee7067aaec"
+      },
+      "apps/web/package.json": {
+        "hash": "0acfd415c3cf6a"
+      },
+      "apps/web/src/App.test.tsx": {
+        "hash": "1ec2260b5c4deb"
+      },
+      "apps/web/src/App.tsx": {
+        "hash": "00b00ca1519e68"
+      },
+      "apps/web/src/main.tsx": {
+        "hash": "1dcbbfea5d9174"
+      },
+      "apps/web/tsconfig.json": {
+        "hash": "1386a29efc1b56"
+      },
+      "apps/web/vite.config.ts": {
+        "hash": "17911097f039a2"
+      },
+      "eslint.config.js": {
+        "hash": "11deda6a3f9eaa"
+      },
+      "package.json": {
+        "hash": "0ec08f9274ab74"
+      },
+      "packages/shared/package.json": {
+        "hash": "194bbbecd6889b"
+      },
+      "packages/shared/src/index.test.ts": {
+        "hash": "0633a807fd59fc"
+      },
+      "packages/shared/src/index.ts": {
+        "hash": "0f6fa700855bfa"
+      },
+      "packages/shared/tsconfig.json": {
+        "hash": "0146dd7acc6fdf"
+      },
+      "pnpm-workspace.yaml": {
+        "hash": "07972132ca50b4"
+      },
+      "tsconfig.base.json": {
+        "hash": "17637e28e2bee3"
+      },
+      "turbo.json": {
+        "hash": "19b88f5eda91c5"
+      }
+    },
+    "packageJson": {
+      "scripts": {
+        "dev": "turbo dev",
+        "build": "turbo build",
+        "start": "pnpm --filter ./apps/server start",
+        "test": "turbo test",
+        "lint": "turbo lint",
+        "typecheck": "turbo typecheck"
+      },
+      "dependencies": {
+        "devDependencies": {
+          "turbo": "^2.0.0",
+          "typescript": "^5.9.3",
+          "vitest": "^4.0.0",
+          "eslint": "^10.0.0",
+          "@eslint/js": "^10.0.0",
+          "typescript-eslint": "^8.0.0",
+          "prettier": "^3.3.0",
+          "@types/node": "^24.0.0"
+        }
+      },
+      "protectedFields": {
+        "packageManager": "pnpm@9.10.0"
+      }
+    }
+  }
+}
+
+===== pnpm-workspace.yaml =====
+packages:
+  - "apps/*"
+  - "packages/*"
+
+===== tsconfig.base.json =====
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "noEmit": true
+  }
+}
+
+===== turbo.json =====
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "dev": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "lint": {}
+  }
+}

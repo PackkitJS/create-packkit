@@ -1,0 +1,578 @@
+===== .changeset/README.md =====
+# Changesets
+
+Run `npx changeset` to record a version bump for your next release.
+
+===== .changeset/config.json =====
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "access": "public",
+  "baseBranch": "main"
+}
+
+===== .editorconfig =====
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+
+[*.{json,yml,yaml,md}]
+indent_style = space
+indent_size = 2
+
+===== .github/ISSUE_TEMPLATE/bug_report.md =====
+---
+name: Bug report
+about: Report a problem
+labels: bug
+---
+
+**Describe the bug**
+
+**To reproduce**
+
+**Expected behavior**
+
+**Environment**
+- Version:
+- Node:
+- OS:
+
+===== .github/ISSUE_TEMPLATE/feature_request.md =====
+---
+name: Feature request
+about: Suggest an idea
+labels: enhancement
+---
+
+**Problem**
+
+**Proposed solution**
+
+**Alternatives considered**
+
+===== .github/PULL_REQUEST_TEMPLATE.md =====
+## Summary
+
+<!-- What does this change and why? -->
+
+## Checklist
+
+- [ ] Tests pass
+- [ ] Lint & types pass
+- [ ] Docs updated if needed
+
+===== .github/workflows/ci.yml =====
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+
+===== .gitignore =====
+# dependencies
+node_modules/
+.pnp.*
+.yarn/*
+
+# build output
+dist/
+coverage/
+*.tsbuildinfo
+
+# test artifacts (Playwright)
+test-results/
+playwright-report/
+playwright/.cache/
+
+# logs
+*.log
+npm-debug.log*
+
+# env & editor
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+===== .npmrc =====
+engine-strict=true
+
+===== .prettierrc.json =====
+{
+  "useTabs": true,
+  "singleQuote": true,
+  "semi": true,
+  "printWidth": 100,
+  "trailingComma": "all"
+}
+
+===== AGENTS.md =====
+# AGENTS.md
+
+Guidance for AI coding agents working in **fixture**.
+
+## Stack
+
+- Language: TypeScript (strict)
+- Module format: ESM
+- Package manager: pnpm
+- Bundler: tsup
+- Tests: vitest
+- Lint/format: eslint-prettier
+
+## Commands
+
+- Type-check: `pnpm typecheck`
+- Lint: `pnpm lint`
+- Test: `pnpm test`
+- Build: `pnpm build`
+
+## Conventions
+
+- Source lives in `src/`. Keep the public API in `src/index.ts`.
+- Add or update tests for any behavior change.
+- Prefer explicit types on exported functions; keep `strict` passing.
+- Run `npx changeset` after a user-facing change.
+- Do not commit `dist/` or `node_modules/`.
+
+===== CLAUDE.md =====
+See [AGENTS.md](./AGENTS.md) for build/test commands and conventions.
+
+===== CODE_OF_CONDUCT.md =====
+# Code of Conduct
+
+This project follows the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
+By participating, you are expected to uphold this code. Report unacceptable
+behavior to the maintainers.
+
+===== CONTRIBUTING.md =====
+# Contributing
+
+Thanks for your interest in contributing!
+
+## Development
+
+```sh
+pnpm install
+pnpm test
+```
+
+## Pull requests
+
+- Create a branch, make your change, and open a PR against `main`.
+- Make sure lint, types and tests pass.
+- Run `npx changeset` to describe your change for the changelog.
+
+
+===== LICENSE =====
+MIT License
+
+Copyright (c) 2026 Fixture Author <fixture@example.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+===== README.md =====
+# fixture
+
+A fixture project.
+
+## Packages
+
+- `@fixture/core` — the core library
+- `@fixture/utils` — utilities built on `@fixture/core`
+
+## Develop
+
+```sh
+pnpm install
+pnpm build     # build all packages (Turborepo)
+pnpm test
+```
+
+## License
+
+MIT © Fixture Author <fixture@example.com>
+
+===== SECURITY.md =====
+# Security Policy
+
+If you discover a security vulnerability, please **do not** open a public issue.
+Instead, report it privately to the maintainers (e.g. via GitHub Security
+Advisories). We will respond as quickly as possible.
+
+===== eslint.config.js =====
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+	js.configs.recommended,
+	...tseslint.configs.recommended,
+	{ ignores: ['**/dist'] },
+);
+
+===== package.json =====
+{
+  "name": "fixture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@9.10.0",
+  "scripts": {
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "dev": "turbo dev",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "turbo build && changeset publish"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.9.3",
+    "tsup": "^8.0.0",
+    "vitest": "^4.0.0",
+    "eslint": "^10.0.0",
+    "@eslint/js": "^10.0.0",
+    "typescript-eslint": "^8.0.0",
+    "prettier": "^3.3.0",
+    "@changesets/cli": "^2.27.0",
+    "@types/node": "^24.0.0"
+  }
+}
+
+===== packages/core/package.json =====
+{
+  "name": "@fixture/core",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  }
+}
+
+===== packages/core/src/index.test.ts =====
+import { describe, it, expect } from 'vitest';
+import { greet } from './index.js';
+
+describe('example', () => {
+	it('works', () => {
+		expect(greet('world')).toBe('Hello, world!');
+	});
+});
+
+===== packages/core/src/index.ts =====
+/** Greet someone by name. */
+export function greet(name: string): string {
+	return `Hello, ${name}!`;
+}
+
+===== packages/core/tsconfig.json =====
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "src"
+  ]
+}
+
+===== packages/utils/package.json =====
+{
+  "name": "@fixture/utils",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@fixture/core": "workspace:*"
+  }
+}
+
+===== packages/utils/src/index.test.ts =====
+import { describe, it, expect } from 'vitest';
+import { shout } from './index.js';
+
+describe('example', () => {
+	it('works', () => {
+		expect(shout('world')).toBe('HELLO, WORLD!');
+	});
+});
+
+===== packages/utils/src/index.ts =====
+import { greet } from '@fixture/core';
+
+/** Greet someone, loudly. */
+export function shout(name: string): string {
+	return greet(name).toUpperCase();
+}
+
+===== packages/utils/tsconfig.json =====
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "src"
+  ]
+}
+
+===== packkit.json =====
+{
+  "$schema": "https://packkitjs.github.io/create-packkit/packkit.schema.json",
+  "generator": "create-packkit",
+  "preset": "monorepo",
+  "settings": {
+    "description": "A fixture project.",
+    "author": "Fixture Author <fixture@example.com>",
+    "repo": "https://github.com/fixture/fixture",
+    "monorepo": true,
+    "packageManager": "pnpm"
+  },
+  "baseline": {
+    "schemaVersion": 1,
+    "files": {
+      ".changeset/README.md": {
+        "hash": "0e16f282026359"
+      },
+      ".changeset/config.json": {
+        "hash": "042304fed7f259"
+      },
+      ".editorconfig": {
+        "hash": "1811c495930b03"
+      },
+      ".github/ISSUE_TEMPLATE/bug_report.md": {
+        "hash": "14665755d4fe69"
+      },
+      ".github/ISSUE_TEMPLATE/feature_request.md": {
+        "hash": "19ef8d724b4866"
+      },
+      ".github/PULL_REQUEST_TEMPLATE.md": {
+        "hash": "174297edf0cebd"
+      },
+      ".github/workflows/ci.yml": {
+        "hash": "09cd7e37936d08"
+      },
+      ".gitignore": {
+        "hash": "1fd9c31aebe75a"
+      },
+      ".npmrc": {
+        "hash": "154fbd08123dcc"
+      },
+      ".prettierrc.json": {
+        "hash": "05a19eb6a83b83"
+      },
+      "AGENTS.md": {
+        "hash": "00eb6ab0d70cb0"
+      },
+      "CLAUDE.md": {
+        "hash": "0a3e1dac8414fa"
+      },
+      "CODE_OF_CONDUCT.md": {
+        "hash": "11130d8e94d7e7"
+      },
+      "CONTRIBUTING.md": {
+        "hash": "1d3d74c8963f45"
+      },
+      "LICENSE": {
+        "hash": "199a668c7eefba"
+      },
+      "README.md": {
+        "hash": "1ed95e9d8bad48"
+      },
+      "SECURITY.md": {
+        "hash": "1fc69ca4db19fc"
+      },
+      "eslint.config.js": {
+        "hash": "11deda6a3f9eaa"
+      },
+      "package.json": {
+        "hash": "08294280842e93"
+      },
+      "packages/core/package.json": {
+        "hash": "019c2eeee77002"
+      },
+      "packages/core/src/index.test.ts": {
+        "hash": "0c4c44cfa3ed15"
+      },
+      "packages/core/src/index.ts": {
+        "hash": "05e62c94a9b54f"
+      },
+      "packages/core/tsconfig.json": {
+        "hash": "0146dd7acc6fdf"
+      },
+      "packages/utils/package.json": {
+        "hash": "0ea04fb99c1835"
+      },
+      "packages/utils/src/index.test.ts": {
+        "hash": "14532d9d0c577c"
+      },
+      "packages/utils/src/index.ts": {
+        "hash": "0605efa115ff32"
+      },
+      "packages/utils/tsconfig.json": {
+        "hash": "0146dd7acc6fdf"
+      },
+      "pnpm-workspace.yaml": {
+        "hash": "0d6890e1d0c8fa"
+      },
+      "tsconfig.base.json": {
+        "hash": "100a0b5fcb4156"
+      },
+      "turbo.json": {
+        "hash": "05b5d1067bcbf4"
+      }
+    },
+    "packageJson": {
+      "scripts": {
+        "build": "turbo build",
+        "test": "turbo test",
+        "lint": "turbo lint",
+        "typecheck": "turbo typecheck",
+        "dev": "turbo dev",
+        "changeset": "changeset",
+        "version": "changeset version",
+        "release": "turbo build && changeset publish"
+      },
+      "dependencies": {
+        "devDependencies": {
+          "turbo": "^2.0.0",
+          "typescript": "^5.9.3",
+          "tsup": "^8.0.0",
+          "vitest": "^4.0.0",
+          "eslint": "^10.0.0",
+          "@eslint/js": "^10.0.0",
+          "typescript-eslint": "^8.0.0",
+          "prettier": "^3.3.0",
+          "@changesets/cli": "^2.27.0",
+          "@types/node": "^24.0.0"
+        }
+      },
+      "protectedFields": {
+        "packageManager": "pnpm@9.10.0"
+      }
+    }
+  }
+}
+
+===== pnpm-workspace.yaml =====
+packages:
+  - "packages/*"
+
+===== tsconfig.base.json =====
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": [
+      "ES2022"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "noEmit": true
+  }
+}
+
+===== turbo.json =====
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "lint": {},
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

@@ -1,0 +1,315 @@
+===== .editorconfig =====
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+
+[*.{json,yml,yaml,md}]
+indent_style = space
+indent_size = 2
+
+===== .github/workflows/ci.yml =====
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+
+===== .gitignore =====
+# dependencies
+node_modules/
+.pnp.*
+.yarn/*
+
+# build output
+dist/
+coverage/
+*.tsbuildinfo
+
+# test artifacts (Playwright)
+test-results/
+playwright-report/
+playwright/.cache/
+
+# logs
+*.log
+npm-debug.log*
+
+# env & editor
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+===== .npmrc =====
+engine-strict=true
+
+===== .nvmrc =====
+24.18.0
+
+===== LICENSE =====
+MIT License
+
+Copyright (c) 2026 Fixture Author <fixture@example.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+===== README.md =====
+# fixture
+
+A fixture project.
+
+[![npm](https://img.shields.io/npm/v/fixture.svg)](https://www.npmjs.com/package/fixture) [![CI](https://github.com/fixture/fixture/actions/workflows/ci.yml/badge.svg)](https://github.com/fixture/fixture/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+## Requirements
+
+Node.js >= 24.0.0 (`.nvmrc` pins 24.18.0; run `nvm use`). Enforced via `engine-strict`, so installs fail fast on an unsupported version.
+
+## Install
+
+```sh
+npm install fixture
+```
+
+## Usage
+
+```ts
+import { greet } from 'fixture';
+
+greet('world'); // "Hello, world!"
+```
+
+## License
+
+MIT © Fixture Author <fixture@example.com>
+
+===== package.json =====
+{
+  "name": "fixture",
+  "version": "0.0.0",
+  "description": "A fixture project.",
+  "homepage": "https://github.com/fixture/fixture#readme",
+  "bugs": {
+    "url": "https://github.com/fixture/fixture/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fixture/fixture.git"
+  },
+  "license": "MIT",
+  "author": "Fixture Author <fixture@example.com>",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "tsup",
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "rimraf": "^6.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.9.3"
+  }
+}
+
+===== packkit.json =====
+{
+  "$schema": "https://packkitjs.github.io/create-packkit/packkit.schema.json",
+  "generator": "create-packkit",
+  "preset": "minimal",
+  "settings": {
+    "description": "A fixture project.",
+    "author": "Fixture Author <fixture@example.com>",
+    "repo": "https://github.com/fixture/fixture",
+    "test": "none",
+    "coverage": false,
+    "lint": "none",
+    "gitHooks": "none",
+    "release": "none",
+    "workflows": [
+      "ci"
+    ],
+    "deps": "none",
+    "community": false,
+    "agents": false,
+    "vscode": false
+  },
+  "baseline": {
+    "schemaVersion": 1,
+    "files": {
+      ".editorconfig": {
+        "hash": "1811c495930b03"
+      },
+      ".github/workflows/ci.yml": {
+        "hash": "0932749a915566"
+      },
+      ".gitignore": {
+        "hash": "1fd9c31aebe75a"
+      },
+      ".npmrc": {
+        "hash": "154fbd08123dcc"
+      },
+      ".nvmrc": {
+        "hash": "147aa9099b1835"
+      },
+      "LICENSE": {
+        "hash": "199a668c7eefba"
+      },
+      "README.md": {
+        "hash": "1217ab4e7617cf"
+      },
+      "package.json": {
+        "hash": "0d92754ef0e4ed"
+      },
+      "src/index.ts": {
+        "hash": "05e62c94a9b54f"
+      },
+      "tsconfig.json": {
+        "hash": "1b80b087e26b53"
+      },
+      "tsup.config.ts": {
+        "hash": "058521d29808bb"
+      }
+    },
+    "packageJson": {
+      "scripts": {
+        "typecheck": "tsc --noEmit",
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "prepublishOnly": "tsup",
+        "clean": "rimraf dist"
+      },
+      "dependencies": {
+        "devDependencies": {
+          "@types/node": "^24.0.0",
+          "rimraf": "^6.0.0",
+          "tsup": "^8.0.0",
+          "typescript": "^5.9.3"
+        }
+      },
+      "protectedFields": {
+        "exports": {
+          ".": {
+            "import": {
+              "types": "./dist/index.d.ts",
+              "default": "./dist/index.js"
+            }
+          }
+        },
+        "main": "./dist/index.js",
+        "module": "./dist/index.js",
+        "types": "./dist/index.d.ts",
+        "files": [
+          "dist",
+          "src"
+        ],
+        "engines": {
+          "node": ">=24.0.0"
+        }
+      }
+    }
+  }
+}
+
+===== src/index.ts =====
+/** Greet someone by name. */
+export function greet(name: string): string {
+	return `Hello, ${name}!`;
+}
+
+===== tsconfig.json =====
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": [
+      "ES2022"
+    ],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": true
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}
+
+===== tsup.config.ts =====
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
+	entry: ['src/index.ts'],
+	format: ['esm'],
+	dts: true,
+	sourcemap: true,
+	clean: true,
+	treeshake: true,
+});
