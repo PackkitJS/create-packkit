@@ -1,5 +1,8 @@
 import { parseArgs } from 'node:util';
-import { resolvePreset } from '../core/presets.js';
+import { resolvePreset, PRESET_NAMES, PRESET_ALIASES } from '../core/presets.js';
+
+/** Thrown for malformed CLI input the caller should report and exit non-zero on. */
+export class CliArgError extends Error {}
 
 // Map friendly flag names to config keys for non-interactive use.
 const OVERRIDE_FLAGS = {
@@ -71,11 +74,28 @@ export function parseCliArgs(argv) {
     },
   });
 
-  // First positional may be a known preset; otherwise it's the project name.
+  // A preset may be given in either positional slot — `name preset` or
+  // `preset name` — so check both, not only the first. (A preset in the second
+  // slot used to be swallowed silently, producing the wrong project at exit 0.)
   let preset = values.preset;
   const pos = [...positionals];
-  if (!preset && pos.length && resolvePreset(pos[0])) preset = pos.shift();
-  const name = values.name || pos[0];
+  if (!preset) {
+    const at = pos.findIndex((p) => resolvePreset(p));
+    if (at !== -1) preset = pos.splice(at, 1)[0];
+  }
+  const name = values.name || pos.shift();
+
+  // Anything still unconsumed is unrecognized. Erroring is the point: the silence
+  // was the real defect — a mistyped preset must not yield the wrong project.
+  if (pos.length) {
+    const bad = pos[0];
+    const guess = closestPreset(bad);
+    throw new CliArgError(
+      `Unrecognized argument "${bad}".` +
+        (guess ? ` Did you mean the "${guess}" preset?` : '') +
+        ' Run `create-packkit --help` to see presets and flags.',
+    );
+  }
 
   const overrides = {};
   for (const [flag, key] of Object.entries(OVERRIDE_FLAGS)) {
@@ -123,4 +143,31 @@ export function parseCliArgs(argv) {
     schema: !!values.schema,
     overrides,
   };
+}
+
+// Suggest the nearest preset or alias to an unrecognized token, but only when
+// it's actually close — a wild typo gets no misleading suggestion.
+function closestPreset(token) {
+  const candidates = [...PRESET_NAMES, ...Object.keys(PRESET_ALIASES)];
+  let best;
+  let bestDistance = Infinity;
+  for (const candidate of candidates) {
+    const distance = editDistance(token, candidate);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = candidate;
+    }
+  }
+  return bestDistance <= Math.max(2, Math.ceil(token.length / 3)) ? best : undefined;
+}
+
+function editDistance(a, b) {
+  const dp = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+  }
+  return dp[a.length][b.length];
 }

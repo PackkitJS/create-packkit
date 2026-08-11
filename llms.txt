@@ -15,17 +15,20 @@ npx create-packkit --schema
 Generate non-interactively (no prompts; `--no-install`/`--no-git` for a pure file scaffold):
 
 ```sh
-npx create-packkit <name> [preset] [--flags...]
+npx create-packkit <preset> <name> [--flags...]
 ```
+
+The preset and name positionals may be given in either order; an unrecognized
+positional (e.g. a mistyped preset) is a hard error, not silently ignored.
 
 Examples:
 
 ```sh
-npx create-packkit my-lib ts-lib
-npx create-packkit my-cli cli --pm pnpm
-npx create-packkit ui react-lib --storybook
-npx create-packkit api node-service
-npx create-packkit web react-app
+npx create-packkit ts-lib my-lib
+npx create-packkit cli my-cli --pm pnpm
+npx create-packkit react-lib ui --storybook
+npx create-packkit node-service api
+npx create-packkit react-app web
 npx create-packkit lib my-lib --no-install --no-git
 ```
 
