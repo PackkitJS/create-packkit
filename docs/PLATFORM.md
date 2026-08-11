@@ -192,6 +192,23 @@ provider never inspects generator-specific config.
   working; compatibility is verified by tests, and expressed against the
   **deployment-contract version**, not primarily against a create-packkit range.
 
+### 5.1 Release notes & changelogs
+
+Every ecosystem repo keeps a **hand-maintained `CHANGELOG.md`** starting now, in
+the [Keep a Changelog](https://keepachangelog.com) format: a top
+`## [Unreleased]` section, then released versions newest-first, using
+`Added / Changed / Fixed / Removed / Deprecated / Security` categories as needed.
+This is deliberately low-tech so migration progress is tracked from the first
+commit onward, before any release tooling is unified.
+
+**Full [Changesets](https://github.com/changesets/changesets) automation is
+adopted later, in Phase 4 (`packkit-actions`)** — the reusable-CI phase, where
+release workflows get standardized across the org. Packages are already scaffolded
+with `@changesets/cli`, but the live release flow (create-packkit's custom
+`release.yml`) is not wired to `changeset version`/`changeset publish` yet, so that
+switch is deferred to avoid churn now. Until then, changelog entries are written by
+hand; Phase 4 flips them over to generated, per-package changelogs.
+
 ## 6. Phased backlog
 
 ### Phase 0 — Plan & backlog ✅
@@ -230,6 +247,8 @@ provider never inspects generator-specific config.
       never `@main`; a push to `packkit-actions/main` must never break every repo
 - [ ] Weekly freshness + generated-project validation as an org invariant
 - [ ] OIDC trusted publishing for new packages; final `npm publish` job stays local
+- [ ] **Adopt Changesets automation** — wire release workflows to `changeset
+      version`/`changeset publish`, generating per-package `CHANGELOG.md`
 
 ### Phase 5 — Extract `packkit-mcp`
 - [ ] Own repo; registers generators; tools `list_generators`/`list_presets`/
