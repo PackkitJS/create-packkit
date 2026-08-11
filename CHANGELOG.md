@@ -7,9 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Platform migration in progress (see [docs/PLATFORM.md](docs/PLATFORM.md)):
-`@packkit/core` extraction, the `PackkitGenerator` contract, and a planned
-`4.0.0` where the public embedded API reshapes to implement that contract.
+## [4.0.0] - 2026-08-03
+
+The platform release: create-packkit becomes a language generator on the shared
+`@packkit/core` contract, alongside `create-packkit-py` (see
+[docs/PLATFORM.md](docs/PLATFORM.md)). `npx create-packkit` and the CLI are
+unchanged. Generated output is byte-for-byte identical (17 preset snapshots).
+
+### Added
+
+- Implements `@packkit/core`'s `PackkitGenerator` (exported as `packkitGenerator`
+  from `create-packkit/embedded`): protocol v1 with `generate` /
+  `deployment-contract` / `project-definition` / `baseline-upgrade` capabilities.
+  Passes `@packkit/core`'s executable conformance suite.
+- `packageJsonDiffer` — the npm manifest semantics as a first-class
+  `ManifestDiffer` (the per-generator seam), exposed on `packkitGenerator`.
+
+### Changed
+
+- **BREAKING:** the embedded `GeneratedProject.metadata` is now protocol-native:
+  `{ packkitVersion, schemaVersion, preset }` →
+  `{ generatorId, generatorVersion, protocolVersion, schemaVersion, preset }`.
+  Consumers reading `metadata.packkitVersion` must use `metadata.generatorVersion`.
+- The browser-safe primitives (content hashing, deterministic JSON, path safety,
+  three-way change classification) are now sourced from `@packkit/core` rather
+  than duplicated. `@packkit/core` is a new runtime dependency.
 
 ## [3.3.3] - 2026-08-03
 
