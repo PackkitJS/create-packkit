@@ -10,7 +10,7 @@ import { engineFloor, meetsNodeFloor } from '../core/node.js';
 // API deliberately never performs — git, install, and creating the remote.
 import { resolveProjectConfig, createProjectFromResolvedConfig, PackkitValidationError } from '../embedded/index.js';
 import { writeGeneratedProject } from '../embedded/writer.js';
-import { parseCliArgs } from './args.js';
+import { parseCliArgs, CliArgError } from './args.js';
 import { runWizard } from './wizard.js';
 import {
   existingEntries,
@@ -122,7 +122,16 @@ export async function run(argv = process.argv.slice(2)) {
     return runUpgrade(argv.slice(1));
   }
 
-  const args = parseCliArgs(argv);
+  let args;
+  try {
+    args = parseCliArgs(argv);
+  } catch (err) {
+    if (err instanceof CliArgError) {
+      console.error(`✖ ${err.message}`);
+      process.exit(1);
+    }
+    throw err;
+  }
   if (args.help) return void console.log(HELP);
   if (args.version) return void console.log(pkgVersion());
   if (args.schema) {
