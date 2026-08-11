@@ -30,6 +30,7 @@ export { deriveDeploymentContract };
 export { planUpgrade, isUpgradeEmpty, buildUpgradeWrite, DEFAULT_UPGRADE_POLICY, summarizeUpgrade };
 // create-packkit as a @packkit/core PackkitGenerator (the platform interface).
 export { packkitGenerator } from './generator.js';
+export { packageJsonDiffer } from './manifest-differ.js';
 export { GENERATOR_ID };
 
 // Bumped when the shape of PackkitProjectDefinition changes incompatibly.

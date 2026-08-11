@@ -12,6 +12,7 @@ import { dirname, join } from 'node:path';
 import { PACKKIT_PROTOCOL_VERSION } from '@packkit/core';
 import { OPTIONS, PRESET_NAMES, PRESET_INFO } from '../core/index.js';
 import { GENERATOR_ID } from './constants.js';
+import { packageJsonDiffer } from './manifest-differ.js';
 import {
   SCHEMA_VERSION,
   createProject as ccCreateProject,
@@ -53,6 +54,9 @@ export const packkitGenerator = {
     version: PACKKIT_PROTOCOL_VERSION,
     capabilities: ['generate', 'deployment-contract', 'project-definition', 'baseline-upgrade'],
   },
+
+  // The package.json manifest semantics as a ManifestDiffer (the per-generator seam).
+  manifestDiffers: [packageJsonDiffer],
 
   listPresets() {
     return PRESET_NAMES.map((id) => ({ id, description: PRESET_INFO[id], maturity: 'stable' }));

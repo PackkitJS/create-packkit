@@ -265,7 +265,7 @@ function upgradedProvenance(diskStr, genStr, unresolved) {
 
 // Structural package.json diff, three-way-classified against the baseline
 // snapshot when present.
-function diffPackageJson(diskStr, genStr, baseline) {
+export function diffPackageJson(diskStr, genStr, baseline) {
   const empty = {
     addedScripts: {},
     changedScripts: {},
