@@ -1,0 +1,690 @@
+===== .changeset/README.md =====
+# Changesets
+
+Run `npx changeset` to record a version bump for your next release.
+
+===== .changeset/config.json =====
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch"
+}
+
+===== .editorconfig =====
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+
+[*.{json,yml,yaml,md}]
+indent_style = space
+indent_size = 2
+
+===== .github/ISSUE_TEMPLATE/bug_report.md =====
+---
+name: Bug report
+about: Report a problem
+labels: bug
+---
+
+**Describe the bug**
+
+**To reproduce**
+
+**Expected behavior**
+
+**Environment**
+- Version:
+- Node:
+- OS:
+
+===== .github/ISSUE_TEMPLATE/feature_request.md =====
+---
+name: Feature request
+about: Suggest an idea
+labels: enhancement
+---
+
+**Problem**
+
+**Proposed solution**
+
+**Alternatives considered**
+
+===== .github/PULL_REQUEST_TEMPLATE.md =====
+## Summary
+
+<!-- What does this change and why? -->
+
+## Checklist
+
+- [ ] Tests pass
+- [ ] Lint & types pass
+- [ ] Docs updated if needed
+
+===== .github/renovate.json =====
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits"
+  ]
+}
+
+===== .github/workflows/ci.yml =====
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run coverage
+      - run: npm run knip
+      - run: npm run build
+      - run: npm run check:pkg
+      - uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+===== .github/workflows/codeql.yml =====
+name: CodeQL
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v3
+
+===== .github/workflows/release.yml =====
+name: Release
+on:
+  push:
+    branches: [main]
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - uses: changesets/action@v1
+        with:
+          publish: npm run release
+          version: npm run version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
+        # add NPM_TOKEN as a repo secret, or use npm Trusted Publishing (OIDC)
+
+===== .gitignore =====
+# dependencies
+node_modules/
+.pnp.*
+.yarn/*
+
+# build output
+dist/
+coverage/
+*.tsbuildinfo
+
+# test artifacts (Playwright)
+test-results/
+playwright-report/
+playwright/.cache/
+
+# logs
+*.log
+npm-debug.log*
+
+# env & editor
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+===== .npmrc =====
+engine-strict=true
+
+===== .nvmrc =====
+24.18.0
+
+===== .prettierignore =====
+dist
+coverage
+
+===== .prettierrc.json =====
+{
+  "useTabs": true,
+  "singleQuote": true,
+  "semi": true,
+  "printWidth": 100,
+  "trailingComma": "all"
+}
+
+===== .vscode/extensions.json =====
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "vitest.explorer"
+  ]
+}
+
+===== .vscode/settings.json =====
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.insertSpaces": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  }
+}
+
+===== AGENTS.md =====
+# AGENTS.md
+
+Guidance for AI coding agents working in **fixture**.
+
+## Stack
+
+- Language: TypeScript (strict)
+- Module format: ESM
+- Package manager: npm
+- Bundler: tsup
+- Tests: vitest
+- Lint/format: eslint-prettier
+
+## Commands
+
+- Type-check: `npm run typecheck`
+- Lint: `npm run lint`
+- Test: `npm test`
+- Build: `npm run build`
+
+## Conventions
+
+- Source lives in `src/`. Keep the public API in `src/index.ts`.
+- Add or update tests for any behavior change.
+- Prefer explicit types on exported functions; keep `strict` passing.
+- Run `npx changeset` after a user-facing change.
+- Do not commit `dist/` or `node_modules/`.
+
+===== CLAUDE.md =====
+See [AGENTS.md](./AGENTS.md) for build/test commands and conventions.
+
+===== CODE_OF_CONDUCT.md =====
+# Code of Conduct
+
+This project follows the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
+By participating, you are expected to uphold this code. Report unacceptable
+behavior to the maintainers.
+
+===== CONTRIBUTING.md =====
+# Contributing
+
+Thanks for your interest in contributing!
+
+## Development
+
+```sh
+npm install
+npm test
+```
+
+## Pull requests
+
+- Create a branch, make your change, and open a PR against `main`.
+- Make sure lint, types and tests pass.
+- Run `npx changeset` to describe your change for the changelog.
+
+
+===== LICENSE =====
+MIT License
+
+Copyright (c) 2026 Fixture Author <fixture@example.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+===== README.md =====
+# fixture
+
+A fixture project.
+
+[![npm](https://img.shields.io/npm/v/fixture.svg)](https://www.npmjs.com/package/fixture) [![CI](https://github.com/fixture/fixture/actions/workflows/ci.yml/badge.svg)](https://github.com/fixture/fixture/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+## Requirements
+
+Node.js >= 24.0.0 (`.nvmrc` pins 24.18.0; run `nvm use`). Enforced via `engine-strict`, so installs fail fast on an unsupported version.
+
+## Install
+
+```sh
+npm install fixture
+```
+
+## Usage
+
+```ts
+import { greet } from 'fixture';
+
+greet('world'); // "Hello, world!"
+```
+
+## Releasing
+
+Releases are handled by the `Release` workflow: push a changeset (`npx changeset`) and it opens a version PR, then publishes when that PR merges.
+
+**Publishing needs npm credentials, which a new repository does not have.** Either:
+
+- Set up [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (OIDC) — no secret to store or rotate, and the recommended option; or
+- Add an [npm automation token](https://docs.npmjs.com/creating-and-viewing-access-tokens) as an `NPM_TOKEN` repository secret.
+
+Until one of those is in place the `Release` workflow will fail with `ENEEDAUTH` on every push. That is expected on a brand-new repo.
+
+## License
+
+MIT © Fixture Author <fixture@example.com>
+
+===== SECURITY.md =====
+# Security Policy
+
+If you discover a security vulnerability, please **do not** open a public issue.
+Instead, report it privately to the maintainers (e.g. via GitHub Security
+Advisories). We will respond as quickly as possible.
+
+===== eslint.config.js =====
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+	js.configs.recommended,
+	...tseslint.configs.recommended,
+	{ ignores: ['dist', 'coverage'] },
+);
+
+===== package.json =====
+{
+  "name": "fixture",
+  "version": "0.0.0",
+  "description": "A fixture project.",
+  "homepage": "https://github.com/fixture/fixture#readme",
+  "bugs": {
+    "url": "https://github.com/fixture/fixture/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fixture/fixture.git"
+  },
+  "license": "MIT",
+  "author": "Fixture Author <fixture@example.com>",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "tsup",
+    "clean": "rimraf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "simple-git-hooks",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "npm run build && changeset publish",
+    "check:pkg": "publint && attw --pack --profile esm-only",
+    "knip": "knip"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,yml}": "prettier --write"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.0",
+    "@changesets/cli": "^2.27.0",
+    "@eslint/js": "^10.0.0",
+    "@types/node": "^24.0.0",
+    "@vitest/coverage-v8": "^4.0.0",
+    "eslint": "^10.0.0",
+    "knip": "^5.0.0",
+    "lint-staged": "^16.2.0",
+    "prettier": "^3.3.0",
+    "publint": "^0.3.0",
+    "rimraf": "^6.0.0",
+    "simple-git-hooks": "^2.11.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^4.0.0"
+  }
+}
+
+===== packkit.json =====
+{
+  "$schema": "https://packkitjs.github.io/create-packkit/packkit.schema.json",
+  "generator": "create-packkit",
+  "preset": "oss",
+  "settings": {
+    "description": "A fixture project.",
+    "author": "Fixture Author <fixture@example.com>",
+    "repo": "https://github.com/fixture/fixture",
+    "pkgChecks": true,
+    "knip": true,
+    "workflows": [
+      "ci",
+      "npm-publish",
+      "codeql",
+      "codecov"
+    ]
+  },
+  "baseline": {
+    "schemaVersion": 1,
+    "files": {
+      ".changeset/README.md": {
+        "hash": "0e16f282026359"
+      },
+      ".changeset/config.json": {
+        "hash": "0bdf81bc9e9c2e"
+      },
+      ".editorconfig": {
+        "hash": "1811c495930b03"
+      },
+      ".github/ISSUE_TEMPLATE/bug_report.md": {
+        "hash": "14665755d4fe69"
+      },
+      ".github/ISSUE_TEMPLATE/feature_request.md": {
+        "hash": "19ef8d724b4866"
+      },
+      ".github/PULL_REQUEST_TEMPLATE.md": {
+        "hash": "174297edf0cebd"
+      },
+      ".github/renovate.json": {
+        "hash": "0ae9c2290044dd"
+      },
+      ".github/workflows/ci.yml": {
+        "hash": "16cfeb03ad83fe"
+      },
+      ".github/workflows/codeql.yml": {
+        "hash": "18251dc93b1989"
+      },
+      ".github/workflows/release.yml": {
+        "hash": "14bf137a5574f5"
+      },
+      ".gitignore": {
+        "hash": "1fd9c31aebe75a"
+      },
+      ".npmrc": {
+        "hash": "154fbd08123dcc"
+      },
+      ".nvmrc": {
+        "hash": "147aa9099b1835"
+      },
+      ".prettierignore": {
+        "hash": "0a0c87fb2713ab"
+      },
+      ".prettierrc.json": {
+        "hash": "05a19eb6a83b83"
+      },
+      ".vscode/extensions.json": {
+        "hash": "151dd68be63661"
+      },
+      ".vscode/settings.json": {
+        "hash": "0620abb8210f6f"
+      },
+      "AGENTS.md": {
+        "hash": "1d1b3791073f4a"
+      },
+      "CLAUDE.md": {
+        "hash": "0a3e1dac8414fa"
+      },
+      "CODE_OF_CONDUCT.md": {
+        "hash": "11130d8e94d7e7"
+      },
+      "CONTRIBUTING.md": {
+        "hash": "1d9fdf181456f9"
+      },
+      "LICENSE": {
+        "hash": "199a668c7eefba"
+      },
+      "README.md": {
+        "hash": "08158c80f9ee96"
+      },
+      "SECURITY.md": {
+        "hash": "1fc69ca4db19fc"
+      },
+      "eslint.config.js": {
+        "hash": "0cb9cb0c88541d"
+      },
+      "package.json": {
+        "hash": "1cdc6597c92dc1"
+      },
+      "src/index.test.ts": {
+        "hash": "15fa0f3fc10ecd"
+      },
+      "src/index.ts": {
+        "hash": "05e62c94a9b54f"
+      },
+      "tsconfig.json": {
+        "hash": "1b80b087e26b53"
+      },
+      "tsup.config.ts": {
+        "hash": "058521d29808bb"
+      },
+      "vitest.config.ts": {
+        "hash": "1073146c34a5d4"
+      }
+    },
+    "packageJson": {
+      "scripts": {
+        "typecheck": "tsc --noEmit",
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "prepublishOnly": "tsup",
+        "clean": "rimraf dist",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "coverage": "vitest run --coverage",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "prepare": "simple-git-hooks",
+        "changeset": "changeset",
+        "version": "changeset version",
+        "release": "npm run build && changeset publish",
+        "check:pkg": "publint && attw --pack --profile esm-only",
+        "knip": "knip"
+      },
+      "dependencies": {
+        "devDependencies": {
+          "@arethetypeswrong/cli": "^0.18.0",
+          "@changesets/cli": "^2.27.0",
+          "@eslint/js": "^10.0.0",
+          "@types/node": "^24.0.0",
+          "@vitest/coverage-v8": "^4.0.0",
+          "eslint": "^10.0.0",
+          "knip": "^5.0.0",
+          "lint-staged": "^16.2.0",
+          "prettier": "^3.3.0",
+          "publint": "^0.3.0",
+          "rimraf": "^6.0.0",
+          "simple-git-hooks": "^2.11.0",
+          "tsup": "^8.0.0",
+          "typescript": "^5.9.3",
+          "typescript-eslint": "^8.0.0",
+          "vitest": "^4.0.0"
+        }
+      },
+      "protectedFields": {
+        "exports": {
+          ".": {
+            "import": {
+              "types": "./dist/index.d.ts",
+              "default": "./dist/index.js"
+            }
+          }
+        },
+        "main": "./dist/index.js",
+        "module": "./dist/index.js",
+        "types": "./dist/index.d.ts",
+        "files": [
+          "dist",
+          "src"
+        ],
+        "engines": {
+          "node": ">=24.0.0"
+        }
+      }
+    }
+  }
+}
+
+===== src/index.test.ts =====
+import { describe, it, expect } from 'vitest';
+import { greet } from './index.js';
+
+describe('greet', () => {
+	it('greets by name', () => {
+		expect(greet('world')).toBe('Hello, world!');
+	});
+});
+
+===== src/index.ts =====
+/** Greet someone by name. */
+export function greet(name: string): string {
+	return `Hello, ${name}!`;
+}
+
+===== tsconfig.json =====
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": [
+      "ES2022"
+    ],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": true
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}
+
+===== tsup.config.ts =====
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
+	entry: ['src/index.ts'],
+	format: ['esm'],
+	dts: true,
+	sourcemap: true,
+	clean: true,
+	treeshake: true,
+});
+
+===== vitest.config.ts =====
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+	test: {
+		coverage: { provider: 'v8', reporter: ['text', 'lcov'] },
+	},
+});
