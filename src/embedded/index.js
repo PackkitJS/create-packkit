@@ -9,6 +9,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { PACKKIT_PROTOCOL_VERSION } from '@packkit/core';
+import { GENERATOR_ID } from './constants.js';
 
 import {
   generateTracked,
@@ -27,7 +29,8 @@ import { planUpgrade, isUpgradeEmpty, buildUpgradeWrite, DEFAULT_UPGRADE_POLICY,
 export { deriveDeploymentContract };
 export { planUpgrade, isUpgradeEmpty, buildUpgradeWrite, DEFAULT_UPGRADE_POLICY, summarizeUpgrade };
 // create-packkit as a @packkit/core PackkitGenerator (the platform interface).
-export { packkitGenerator, GENERATOR_ID } from './generator.js';
+export { packkitGenerator } from './generator.js';
+export { GENERATOR_ID };
 
 // Bumped when the shape of PackkitProjectDefinition changes incompatibly.
 export const SCHEMA_VERSION = 2;
@@ -165,7 +168,16 @@ function assembleProject(config, diagnostics) {
     files,
     summary,
     diagnostics,
-    metadata: { packkitVersion: packkitVersion(), schemaVersion: SCHEMA_VERSION, preset: config.preset },
+    // Protocol-native metadata (4.0): create-packkit's embedded API speaks the
+    // @packkit/core platform shape directly, so its GeneratedProject IS a valid
+    // core GeneratedProject (the packkitGenerator adapter is a near pass-through).
+    metadata: {
+      generatorId: GENERATOR_ID,
+      generatorVersion: packkitVersion(),
+      protocolVersion: PACKKIT_PROTOCOL_VERSION,
+      schemaVersion: SCHEMA_VERSION,
+      preset: config.preset,
+    },
     deploymentContract: deriveDeploymentContract(config),
   }, { files: {}, packageJson: {} });
 }
@@ -265,7 +277,7 @@ export function exportProjectDefinition(project) {
   const state = extensionState.get(project) || { files: {}, packageJson: {} };
   return {
     schemaVersion: SCHEMA_VERSION,
-    packkitVersion: project.metadata.packkitVersion,
+    packkitVersion: project.metadata.generatorVersion,
     preset: project.metadata.preset,
     config: serializableConfig(project.config),
     extensions: {
@@ -400,7 +412,7 @@ export function upgradeProject(input = {}) {
     diagnostics: plan.diagnostics,
     metadata: {
       fromPackkitVersion: definition?.packkitVersion,
-      toPackkitVersion: generatedProject.metadata.packkitVersion,
+      toPackkitVersion: generatedProject.metadata.generatorVersion,
       baselineAvailable: plan.baselineAvailable,
       hasConflicts: summary.conflicts > 0,
       hasSafeChanges: summary.safeChanges > 0,
