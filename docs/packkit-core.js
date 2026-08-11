@@ -368,6 +368,27 @@ function resolvedView(cfg) {
   };
 }
 
+// ../packkit-core/dist/index.js
+function contentHash(str) {
+  let h1 = 3735928559;
+  let h2 = 1103547991;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ h1 >>> 16, 2246822507);
+  h1 ^= Math.imul(h2 ^ h2 >>> 13, 3266489909);
+  h2 = Math.imul(h2 ^ h2 >>> 16, 2246822507);
+  h2 ^= Math.imul(h1 ^ h1 >>> 13, 3266489909);
+  const n = 4294967296 * (2097151 & h2) + (h1 >>> 0);
+  return n.toString(16).padStart(14, "0");
+}
+function toJson(value) {
+  return `${JSON.stringify(value, null, 2)}
+`;
+}
+
 // src/core/render.js
 var UNSAFE_KEYS = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]);
 function deepMerge(target, source) {
@@ -386,9 +407,6 @@ function deepMerge(target, source) {
 }
 function isPlainObject(v) {
   return v != null && typeof v === "object" && !Array.isArray(v);
-}
-function toJson(obj) {
-  return JSON.stringify(obj, null, 2) + "\n";
 }
 
 // src/core/pkg.js
@@ -2463,23 +2481,6 @@ var features_default = [
   doctor_default,
   gitfiles_default
 ];
-
-// src/core/hash.js
-function contentHash(str) {
-  let h1 = 3735928559;
-  let h2 = 1103547991;
-  for (let i = 0; i < str.length; i++) {
-    const ch = str.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }
-  h1 = Math.imul(h1 ^ h1 >>> 16, 2246822507);
-  h1 ^= Math.imul(h2 ^ h2 >>> 13, 3266489909);
-  h2 = Math.imul(h2 ^ h2 >>> 16, 2246822507);
-  h2 ^= Math.imul(h1 ^ h1 >>> 13, 3266489909);
-  const n = 4294967296 * (2097151 & h2) + (h1 >>> 0);
-  return n.toString(16).padStart(14, "0");
-}
 
 // src/core/provenance.js
 var TRANSIENT = /* @__PURE__ */ new Set(["gitInit", "install", "generatorVersion", "preset", "name"]);

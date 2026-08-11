@@ -35,7 +35,6 @@ function isPlainObject(v) {
   return v != null && typeof v === 'object' && !Array.isArray(v);
 }
 
-/** Stable, human-friendly stringify with 2-space indent and trailing newline. */
-export function toJson(obj) {
-  return JSON.stringify(obj, null, 2) + '\n';
-}
+// Stable, human-friendly stringify (2-space indent + trailing newline) — now the
+// shared deterministic serializer in @packkit/core, re-exported here.
+export { toJson } from '@packkit/core';

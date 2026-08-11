@@ -19,6 +19,7 @@
 import { finalizePackageJson } from '../core/pkg.js';
 import { deepMerge, toJson } from '../core/render.js';
 import { contentHash } from '../core/hash.js';
+import { classifyChange } from '@packkit/core';
 
 const STRUCTURAL = new Set(['package.json', 'packkit.json']);
 const DEP_SECTIONS = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'];
@@ -48,13 +49,11 @@ function resolvePolicy(policy) {
   return p;
 }
 
-// Classify a value that is known to differ between current and generated, given
-// the baseline value (or none). Equality is by the caller's comparator.
-function classify(hasBaseline, baseline, currentEqBaseline, generatedEqBaseline) {
-  if (!hasBaseline) return { status: 'changed', safeToApply: false, reason: 'differs from the current template (no baseline to compare)' };
-  if (currentEqBaseline && !generatedEqBaseline) return { status: 'template-only-change', safeToApply: true, reason: 'the template changed and you had not edited this' };
-  if (!currentEqBaseline && generatedEqBaseline) return { status: 'user-only-change', safeToApply: false, reason: 'you edited this; the template did not change' };
-  return { status: 'both-changed', safeToApply: false, reason: 'both you and the template changed this' };
+// The three-way classification now lives in @packkit/core (classifyChange). This
+// thin adapter keeps the call sites' signature (the baseline value itself is
+// unused — only the equality booleans matter). Same output as before.
+function classify(hasBaseline, _baseline, currentEqBaseline, generatedEqBaseline) {
+  return classifyChange({ hasBaseline, currentEqualsBaseline: currentEqBaseline, generatedEqualsBaseline: generatedEqBaseline });
 }
 
 /**
