@@ -37,28 +37,6 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      # packkit-mcp depends on create-packkit via a caret (^X.y.z), so it already
-      # picks up every new minor/patch at install time. It only needs re-pinning
-      # (and republishing) when the MAJOR changes — otherwise the MCP server would
-      # keep scaffolding with the previous major. Do that automatically here.
-      - name: Keep packkit-mcp linked to the current create-packkit major
-        run: |
-          NEW_MAJOR=$(node -p "require('./package.json').version.split('.')[0]")
-          CUR_MAJOR=$(node -p "(require('./mcp/package.json').dependencies['create-packkit']||'').replace(/[^0-9.]/g,'').split('.')[0]")
-          if [ "$NEW_MAJOR" != "$CUR_MAJOR" ]; then
-            echo "create-packkit major $CUR_MAJOR -> $NEW_MAJOR — re-pinning and bumping packkit-mcp"
-            npm --prefix mcp pkg set "dependencies.create-packkit=^${NEW_MAJOR}.0.0"
-            npm --prefix mcp version patch --no-git-tag-version
-          else
-            echo "create-packkit major unchanged ($CUR_MAJOR); packkit-mcp's caret already tracks the new release."
-          fi
-
-      # server.json (the official-registry manifest) and the version the server
-      # reports over MCP must track mcp/package.json, or the registry entry and
-      # the running server drift from the published npm package.
-      - name: Sync server.json + mcp/server.js to packkit-mcp's version
-        run: node scripts/sync-mcp-version.mjs
-
       - name: Commit and tag
         run: |
           git config user.name "github-actions[bot]"
@@ -72,47 +50,6 @@ jobs:
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish packkit-mcp (only when its version is new)
-        id: mcp
-        working-directory: mcp
-        run: |
-          V=$(node -p "require('./package.json').version")
-          if [ "$(npm view packkit-mcp@$V version 2>/dev/null)" = "$V" ]; then
-            echo "packkit-mcp@$V already published — skipping"
-            echo "published=false" >> "$GITHUB_OUTPUT"
-          else
-            npm publish --provenance --access public
-            echo "published=true" >> "$GITHUB_OUTPUT"
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      # Clients (Glama, Cursor, VS Code…) resolve install commands from the
-      # official registry, so publish the server entry too. OIDC needs no
-      # secrets; the registry verifies npm ownership via mcpName, so this must
-      # run AFTER the npm publish above.
-      - name: Publish to the official MCP registry
-        if: steps.mcp.outputs.published == 'true'
-        run: |
-          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
-          ./mcp-publisher login github-oidc
-          ./mcp-publisher publish
-
-      # `npx packkit-mcp` resolves the caret to the newest create-packkit, but
-      # builds that run `npm ci` (Glama's, notably) install whatever this
-      # lockfile pins — so refresh it now that the new version is on npm, or the
-      # hosted server keeps scaffolding with an older core.
-      - name: Refresh mcp lockfile against the just-published create-packkit
-        run: |
-          npm --prefix mcp install --package-lock-only --ignore-scripts
-          if git diff --quiet -- mcp/package-lock.json; then
-            echo "mcp lockfile already current"
-          else
-            git add mcp/package-lock.json
-            git commit -m "chore(mcp): refresh lockfile for create-packkit v${{ steps.bump.outputs.version }}"
-            git push
-          fi
 
       - name: GitHub Release
         run: gh release create "v${{ steps.bump.outputs.version }}" --generate-notes

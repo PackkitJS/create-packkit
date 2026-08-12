@@ -9,7 +9,7 @@
 [![License: MIT](https://img.shields.io/npm/l/create-packkit?style=flat-square&color=blue)](LICENSE)
 <br/>
 [![Configure on the web](https://img.shields.io/badge/⚙_configure-on_the_web-00e5ff?style=flat-square)](https://packkitjs.github.io/create-packkit/)
-[![MCP server](https://img.shields.io/badge/MCP-packkit--mcp-8a5cf6?style=flat-square)](mcp)
+[![MCP server](https://img.shields.io/badge/MCP-packkit--mcp-8a5cf6?style=flat-square)](https://github.com/PackkitJS/packkit-mcp)
 [![llms.txt](https://img.shields.io/badge/llms.txt-✓-000000?style=flat-square)](https://packkitjs.github.io/create-packkit/llms.txt)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 
@@ -243,7 +243,7 @@ npx create-packkit my-lib ts-lib --no-install --no-git   # deterministic scaffol
 
 There's also an [`llms.txt`](llms.txt) (served at [packkitjs.github.io/create-packkit/llms.txt](https://packkitjs.github.io/create-packkit/llms.txt)) describing the commands for LLMs.
 
-**MCP server** — [`packkit-mcp`](mcp) exposes Packkit as a native [Model Context Protocol](https://modelcontextprotocol.io) tool (schema / preview / scaffold). Add to your agent's MCP config:
+**MCP server** — [`packkit-mcp`](https://github.com/PackkitJS/packkit-mcp) exposes every Packkit generator (JS/TS + Python) as native [Model Context Protocol](https://modelcontextprotocol.io) tools. Add to your agent's MCP config:
 
 ```json
 { "mcpServers": { "packkit": { "command": "npx", "args": ["-y", "packkit-mcp"] } } }
