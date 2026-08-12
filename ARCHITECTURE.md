@@ -64,8 +64,8 @@ internal modules.
    its diagnostics and path safety), then adds what the embedded API never does:
    `git init`, install, creating the remote.
 
-6. **The web configurator uses the core directly.** `docs/` bundles `src/core`
-   (`build:web`) and runs it client-side to preview and zip. No embedded layer,
+6. **The web configurator uses the core directly.** [`PackkitJS/packkit-web`](https://github.com/PackkitJS/packkit-web)
+   bundles `src/core` and runs it client-side to preview and zip. No embedded layer,
    no server — which is why the core must stay browser-safe.
 
 7. **MCP uses the embedded API where it needs orchestration, and lower-level

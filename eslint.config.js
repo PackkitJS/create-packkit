@@ -8,7 +8,7 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['docs/packkit-core.js', 'node_modules/**', 'coverage/**'],
+    ignores: ['node_modules/**', 'coverage/**'],
   },
   js.configs.recommended,
   {

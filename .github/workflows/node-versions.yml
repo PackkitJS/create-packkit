@@ -19,16 +19,15 @@ jobs:
           cache: npm
       - run: npm ci
 
-      # Re-derive offered Node lines + pins from nodejs.org, then rebuild the
-      # web bundle so the configurator matches.
+      # Re-derive offered Node lines + pins from nodejs.org. (The web configurator
+      # now lives in PackkitJS/packkit-web and rebuilds itself on deploy.)
       - run: node scripts/update-node-versions.mjs
-      - run: npm run build:web
 
       - name: Open a PR when the Node lines changed
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if git diff --quiet -- src/core/node-versions.js docs/packkit-core.js; then
+          if git diff --quiet -- src/core/node-versions.js; then
             echo "Node versions already current — nothing to do."
             exit 0
           fi
@@ -36,7 +35,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH"
-          git add src/core/node-versions.js docs/packkit-core.js
+          git add src/core/node-versions.js
           git commit -m "chore: refresh offered Node versions from upstream"
           git push -f origin "$BRANCH"
           gh pr view "$BRANCH" >/dev/null 2>&1 || gh pr create \
