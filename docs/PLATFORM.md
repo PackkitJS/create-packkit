@@ -1,6 +1,6 @@
 # Packkit Platform Migration — JS/TS scaffolder → multi-language platform
 
-Status: **Phase 1 complete** · Target release: **create-packkit 4.0.0** · Owner: DanMat
+Status: **Phases 2 & 3 complete** (shipped: `@packkit/core` 0.1.2, create-packkit 4.0.0, create-packkit-py 1.0.0) · Next: **Phase 4 — `packkit-actions`** · Owner: DanMat
 
 Packkit is evolving from "a JS/TS project generator" into a **provider-neutral
 project bootstrap and lifecycle platform**, where a language-agnostic core defines
@@ -221,20 +221,21 @@ hand; Phase 4 flips them over to generated, per-package changelogs.
 - [ ] **Semantic invariant tests** in both repos (JSON/TOML parse, contract +
       definition validation, path safety, unique IDs, round-trip) — Addition 6
 
-### Phase 2 — `packkit-core`: protocol, primitives, conformance
-- [ ] New repo/package `@packkit/core@0.1.0` with browser/node/testing subpaths
-- [ ] `PACKKIT_PROTOCOL_VERSION`, `PackkitGenerator` (+ capabilities/maturity),
+### Phase 2 — `packkit-core`: protocol, primitives, conformance ✅
+- [x] New repo/package `@packkit/core` with browser/node/testing subpaths
+      (shipped 0.1.0; now 0.1.2 — OIDC trusted publishing live)
+- [x] `PACKKIT_PROTOCOL_VERSION`, `PackkitGenerator` (+ capabilities/maturity),
       `ManifestDiffer`, deployment contracts (+ `Worker`), stable-ID/deprecation types
-- [ ] Universal primitives: hashing, file three-way diff, `toJson`, diagnostics,
+- [x] Universal primitives: hashing, file three-way diff, `toJson`, diagnostics,
       path-safety; **writer under `@packkit/core/node`**
-- [ ] `runGeneratorConformanceSuite` in `@packkit/core/testing`
-- [ ] `create-packkit` depends on core, implements `PackkitGenerator` (pkg semantics
+- [x] `runGeneratorConformanceSuite` in `@packkit/core/testing`
+- [x] `create-packkit` depends on core, implements `PackkitGenerator` (pkg semantics
       behind its `ManifestDiffer`), passes the conformance suite → **4.0.0**
 - **Acceptance:** Phase-1 snapshots byte-identical; browser entry loads no `node:*`;
       `npx create-packkit` unchanged; provider-netlify green; conformance suite passes.
 
-### Phase 3 — Python lifecycle parity
-- [ ] `create-packkit-py` implements `PackkitGenerator` on `@packkit/core`, passes
+### Phase 3 — Python lifecycle parity ✅
+- [x] `create-packkit-py` implements `PackkitGenerator` on `@packkit/core`, passes
       the conformance suite: embedded API, schema, definitions/provenance,
       baseline-aware upgrade (pyproject `ManifestDiffer`), deployment contract → 1.0.0
 
@@ -254,6 +255,11 @@ hand; Phase 4 flips them over to generated, per-package changelogs.
 - [ ] Own repo; registers generators; tools `list_generators`/`list_presets`/
       `get_generator_schema`/`generate_project`/`plan_upgrade`; JS + Python in v1;
       hides experimental presets appropriately. Keep `io.github.PackkitJS/packkit-mcp`.
+- **Pre-staged:** the npm `packkit-mcp` OIDC trusted publisher already points at
+      `PackkitJS/packkit-mcp` / `release.yml` (future-state repo). It stays **dormant
+      until this phase** — until `/mcp` is extracted there with its own workflow,
+      releases still go through `create-packkit`'s existing flow. Extraction is what
+      lights the publisher up (repo + workflow then match npm's OIDC check).
 
 ### Phase 6 — Extract `packkit-web`
 - [ ] Own repo; one UI renders any generator's schema (language picker); JS + Python
