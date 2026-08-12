@@ -89,7 +89,7 @@ function fileTree(files) {
   return Object.keys(files).sort().map((p) => `  ${p}`).join('\n');
 }
 
-const server = new Server({ name: 'packkit', version: '0.3.0' }, { capabilities: { tools: {} } });
+const server = new Server({ name: 'packkit', version: '0.3.1' }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
 

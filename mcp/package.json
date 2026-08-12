@@ -1,6 +1,6 @@
 {
   "name": "packkit-mcp",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "mcpName": "io.github.PackkitJS/packkit-mcp",
   "description": "MCP server for Packkit — let AI agents scaffold modern npm packages, CLIs, services, and apps as a native tool.",
   "type": "module",
@@ -34,6 +34,6 @@
   "homepage": "https://packkitjs.github.io/create-packkit/",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "create-packkit": "^3.0.0"
+    "create-packkit": "^4.0.0"
   }
 }

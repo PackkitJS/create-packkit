@@ -3,7 +3,7 @@
   "name": "io.github.PackkitJS/packkit-mcp",
   "title": "Packkit",
   "description": "Scaffold modern npm packages, CLIs, services and apps as a native tool for AI agents.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "repository": {
     "url": "https://github.com/PackkitJS/create-packkit",
     "source": "github",
@@ -14,7 +14,7 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "packkit-mcp",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"
