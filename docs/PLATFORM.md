@@ -1,6 +1,6 @@
 # Packkit Platform Migration — JS/TS scaffolder → multi-language platform
 
-Status: **Phase 4 substantially complete** — `packkit-actions` v1 (generator-ci/integration/security) adopted; Changesets automation live (shipped `create-packkit-py` 1.0.1, `@packkit/core` 0.1.3 via tokenless OIDC). Remaining: `dependency-freshness`. Next: **Phase 5 — extract `packkit-mcp`** · Owner: DanMat
+Status: **Phase 4 complete** — `packkit-actions` v1 (generator-ci/integration/security/dependency-freshness) adopted; Changesets automation live (shipped `create-packkit-py` 1.0.2, `@packkit/core` 0.1.3 via tokenless OIDC). Next: **Phase 5 — extract `packkit-mcp`** · Owner: DanMat
 
 Packkit is evolving from "a JS/TS project generator" into a **provider-neutral
 project bootstrap and lifecycle platform**, where a language-agnostic core defines
@@ -239,24 +239,24 @@ hand; Phase 4 flips them over to generated, per-package changelogs.
       the conformance suite: embedded API, schema, definitions/provenance,
       baseline-aware upgrade (pyproject `ManifestDiffer`), deployment contract → 1.0.0
 
-### Phase 4 — `packkit-actions` (shared CI, moved ahead of mcp/web) ▶ mostly done
+### Phase 4 — `packkit-actions` (shared CI, moved ahead of mcp/web) ✅
 - [x] Reusable `workflow_call` workflows: `generator-ci`, `generator-integration`,
-      `security` shipped (`packkit-actions` v1.1.2, moving `v1` tag). `npm-release`
-      intentionally NOT shared — publishing stays local per supply-chain policy.
-      `generated-project-validation` folded into `generator-integration` for now.
-- [x] Standard generator npm scripts `check` + `test:integration` (create-packkit-py
-      is the reference: scaffold each preset → uv + pytest/ruff/mypy). Shared YAML
-      invokes scripts, never encodes language commands. (`check:generated`/`check:freshness`
-      land with dependency-freshness.)
+      `security`, `dependency-freshness` shipped (`packkit-actions` v1.2.0, moving `v1`
+      tag). `npm-release` intentionally NOT shared — publishing stays local per
+      supply-chain policy. `generated-project-validation` folded into `generator-integration`.
+- [x] Standard generator npm scripts `check` + `test:integration` + `check:freshness`
+      (create-packkit-py is the reference: scaffold each preset → uv + pytest/ruff/mypy;
+      freshness reads emitted deps from generated pyproject → PyPI). Shared YAML
+      invokes scripts, never encodes language commands.
 - [x] **Version policy:** consumers pin `@v1`; third-party actions (setup-uv,
       changesets/action) SHA-pinned. core + py adopted; create-packkit took `security@v1`.
-- [ ] **`dependency-freshness`** reusable workflow + weekly freshness / generated-project
-      validation as an org invariant — deferred: needs a per-generator template-freshness
-      checker first (generalize create-packkit's `scripts/check-template-deps.mjs`).
+- [x] Weekly `dependency-freshness` as an org invariant — reusable workflow manages a
+      single tracking issue. Reference impl caught pytest/mypy a major behind → bumped
+      the emitted floors current (integration-verified); ran live, green, no false issue.
 - [x] OIDC trusted publishing for all packages; final `npm publish` stays local.
 - [x] **Changesets automation** — release workflows use `changesets/action@v1.9.0`
       (Version PR → `changeset publish`), tokenless OIDC + provenance, publish in-repo.
-      Proven end-to-end: shipped `create-packkit-py@1.0.1` and `@packkit/core@0.1.3`.
+      Proven end-to-end: shipped `create-packkit-py@1.0.2` and `@packkit/core@0.1.3`.
 
 ### Phase 5 — Extract `packkit-mcp`
 - [ ] Own repo; registers generators; tools `list_generators`/`list_presets`/
