@@ -8,7 +8,6 @@ Thanks for helping improve Packkit!
 npm install
 npm test          # runs the core generation tests (node:test)
 node bin/cli.js --preset full demo --no-install --no-git   # try the CLI
-npm run build:web # rebuild the browser bundle (docs/packkit-core.js)
 ```
 
 ## Architecture
@@ -24,7 +23,9 @@ npm run build:web # rebuild the browser bundle (docs/packkit-core.js)
 1. Add the option to `src/core/options.js` (choices + default).
 2. Handle it in the relevant feature module under `src/core/features/`.
 3. Add/extend a test in `test/core.test.js`.
-4. Run `npm run build:web` so the web bundle stays in sync.
+
+Keep the core browser-safe (no `node:` built-ins) — the web configurator
+([`PackkitJS/packkit-web`](https://github.com/PackkitJS/packkit-web)) bundles it.
 
 ## Pull requests
 

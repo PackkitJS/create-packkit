@@ -27,15 +27,3 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-  bundle-fresh:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-          cache: npm
-      - run: npm ci
-      - run: npm run build:web
-      - name: Ensure docs/packkit-core.js is up to date
-        run: git diff --exit-code docs/packkit-core.js || (echo "::error::Run 'npm run build:web' and commit docs/packkit-core.js" && exit 1)

@@ -43,7 +43,6 @@
     "check": "npm run lint && npm test",
     "check:deps": "node scripts/check-template-deps.mjs",
     "integration": "node scripts/integration.mjs",
-    "build:web": "esbuild src/core/index.js --bundle --format=esm --outfile=docs/packkit-core.js",
     "update:node": "node scripts/update-node-versions.mjs",
     "gen:reference": "node scripts/gen-reference.mjs"
   },
@@ -70,7 +69,7 @@
   "bugs": {
     "url": "https://github.com/PackkitJS/create-packkit/issues"
   },
-  "homepage": "https://packkitjs.github.io/create-packkit/",
+  "homepage": "https://packkit-web.pages.dev/",
   "dependencies": {
     "@clack/prompts": "^0.7.0",
     "@packkit/core": "^0.1.0"

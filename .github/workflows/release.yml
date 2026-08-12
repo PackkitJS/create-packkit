@@ -27,9 +27,6 @@ jobs:
       - run: npm ci
       - run: npm test
 
-      # keep the web bundle in sync before publishing
-      - run: npm run build:web
-
       - name: Bump version
         id: bump
         run: |

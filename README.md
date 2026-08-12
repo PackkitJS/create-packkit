@@ -8,7 +8,7 @@
 [![install size](https://img.shields.io/badge/install%20size-tiny-44cc11?style=flat-square)](https://packagephobia.com/result?p=create-packkit)
 [![License: MIT](https://img.shields.io/npm/l/create-packkit?style=flat-square&color=blue)](LICENSE)
 <br/>
-[![Configure on the web](https://img.shields.io/badge/⚙_configure-on_the_web-00e5ff?style=flat-square)](https://packkitjs.github.io/create-packkit/)
+[![Configure on the web](https://img.shields.io/badge/⚙_configure-on_the_web-00e5ff?style=flat-square)](https://packkit-web.pages.dev/)
 [![MCP server](https://img.shields.io/badge/MCP-packkit--mcp-8a5cf6?style=flat-square)](https://github.com/PackkitJS/packkit-mcp)
 [![llms.txt](https://img.shields.io/badge/llms.txt-✓-000000?style=flat-square)](https://packkitjs.github.io/create-packkit/llms.txt)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
@@ -117,11 +117,11 @@ your edits is marked `partial` with an `unresolvedChanges` count.
 
 ## Or configure it on the web
 
-No install needed: **[packkitjs.github.io/create-packkit](https://packkitjs.github.io/create-packkit/)** — tick the options, preview the file tree, and **download a zip** (or copy the equivalent `npx create-packkit` command). Everything runs in your browser.
+No install needed: **[packkit-web.pages.dev](https://packkit-web.pages.dev/)** — pick a language (JS/TS or Python), tick the options, preview the file tree, and **download a zip** (or copy the equivalent command). Everything runs in your browser.
 
 ## Options reference
 
-Every flag, its values (**default** in bold), and what it's for. Prefer the interactive [web configurator](https://packkitjs.github.io/create-packkit/) — the same descriptions appear as you hover. _This table is generated from the schema (`npm run gen:reference`)._
+Every flag, its values (**default** in bold), and what it's for. Prefer the interactive [web configurator](https://packkit-web.pages.dev/) — the same descriptions appear as you hover. _This table is generated from the schema (`npm run gen:reference`)._
 
 <!-- OPTIONS:START -->
 
