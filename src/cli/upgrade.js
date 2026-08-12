@@ -93,7 +93,7 @@ export async function runUpgrade(argv) {
   } catch (err) {
     return fail('PACKKIT_REGENERATION_FAILED', `Could not regenerate from packkit.json: ${err.message}`);
   }
-  const toVersion = project.metadata.packkitVersion;
+  const toVersion = project.metadata.generatorVersion;
 
   const onDisk = {};
   for (const path of Object.keys(project.files)) {

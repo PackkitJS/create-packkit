@@ -26,7 +26,10 @@ test('createProject: generates in memory with no side effects', () => {
   assert.equal(p.summary.fileCount, Object.keys(p.files).length);
   assert.equal(p.metadata.preset, 'react-app');
   assert.equal(p.metadata.schemaVersion, SCHEMA_VERSION);
-  assert.ok(p.metadata.packkitVersion);
+  // Protocol-native metadata (4.0): generatorId/generatorVersion/protocolVersion.
+  assert.equal(p.metadata.generatorId, 'javascript');
+  assert.ok(p.metadata.generatorVersion);
+  assert.equal(p.metadata.protocolVersion, 1);
   // deterministic: no timestamp baked in unless asked
   assert.equal(p.metadata.generatedAt, undefined);
 });

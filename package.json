@@ -73,7 +73,8 @@
   },
   "homepage": "https://packkitjs.github.io/create-packkit/",
   "dependencies": {
-    "@clack/prompts": "^0.7.0"
+    "@clack/prompts": "^0.7.0",
+    "@packkit/core": "^0.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

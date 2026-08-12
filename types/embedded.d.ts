@@ -15,7 +15,12 @@ export interface Diagnostic {
 }
 
 export interface GeneratedProjectMetadata {
-  packkitVersion: string;
+  /** The generator's stable platform id — 'javascript' for create-packkit. */
+  generatorId: string;
+  /** The generator (package) version. Renamed from `packkitVersion` in 4.0. */
+  generatorVersion: string;
+  /** The @packkit/core protocol version this output conforms to. */
+  protocolVersion: number;
   schemaVersion: number;
   preset?: string;
   generatedAt?: string;
