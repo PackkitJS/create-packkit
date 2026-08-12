@@ -368,7 +368,7 @@ function resolvedView(cfg) {
   };
 }
 
-// ../packkit-core/dist/index.js
+// node_modules/@packkit/core/dist/index.js
 function contentHash(str) {
   let h1 = 3735928559;
   let h2 = 1103547991;
