@@ -1,6 +1,6 @@
 # Packkit Platform Migration — JS/TS scaffolder → multi-language platform
 
-Status: **Phase 4 complete** — `packkit-actions` v1 (generator-ci/integration/security/dependency-freshness) adopted; Changesets automation live (shipped `create-packkit-py` 1.0.2, `@packkit/core` 0.1.3 via tokenless OIDC). Next: **Phase 5 — extract `packkit-mcp`** · Owner: DanMat
+Status: **Phase 5 complete** — `packkit-mcp` extracted to its own repo as a multi-generator server (JS + Python) and shipped **1.0.0** (npm + official MCP registry, tokenless OIDC). Phases 2–5 done. Next: **Phase 6 — extract `packkit-web`** · Owner: DanMat
 
 Packkit is evolving from "a JS/TS project generator" into a **provider-neutral
 project bootstrap and lifecycle platform**, where a language-agnostic core defines
@@ -258,15 +258,18 @@ hand; Phase 4 flips them over to generated, per-package changelogs.
       (Version PR → `changeset publish`), tokenless OIDC + provenance, publish in-repo.
       Proven end-to-end: shipped `create-packkit-py@1.0.2` and `@packkit/core@0.1.3`.
 
-### Phase 5 — Extract `packkit-mcp`
-- [ ] Own repo; registers generators; tools `list_generators`/`list_presets`/
-      `get_generator_schema`/`generate_project`/`plan_upgrade`; JS + Python in v1;
-      hides experimental presets appropriately. Keep `io.github.PackkitJS/packkit-mcp`.
-- **Pre-staged:** the npm `packkit-mcp` OIDC trusted publisher already points at
-      `PackkitJS/packkit-mcp` / `release.yml` (future-state repo). It stays **dormant
-      until this phase** — until `/mcp` is extracted there with its own workflow,
-      releases still go through `create-packkit`'s existing flow. Extraction is what
-      lights the publisher up (repo + workflow then match npm's OIDC check).
+### Phase 5 — Extract `packkit-mcp` ✅
+- [x] Own repo (`PackkitJS/packkit-mcp`); registers both generators via
+      `@packkit/core`'s registry and drives them purely through the protocol; tools
+      `list_generators`/`list_presets` (experimental hidden)/`get_generator_schema`/
+      `generate_project` (preview or write)/`plan_upgrade`; JS + Python in v1.
+      Shipped **`packkit-mcp@1.0.0`** (breaking: the old JS-only `packkit_*` tools are
+      replaced) — tokenless OIDC npm publish + provenance, and the official-registry
+      entry `io.github.PackkitJS/packkit-mcp@1.0.0` now points at the new repo. The
+      `mcp/` subfolder and its release machinery were removed from create-packkit.
+- **Manual follow-ups (Dan):** Glama admin → Build & Release to re-point the listing
+      at `PackkitJS/packkit-mcp` (see RELEASING.md for the known-good config), and
+      update the awesome-mcp-servers entry's Glama score-badge URL to the new repo.
 
 ### Phase 6 — Extract `packkit-web`
 - [ ] Own repo; one UI renders any generator's schema (language picker); JS + Python
