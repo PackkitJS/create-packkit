@@ -45,8 +45,7 @@
     "integration": "node scripts/integration.mjs",
     "build:web": "esbuild src/core/index.js --bundle --format=esm --outfile=docs/packkit-core.js",
     "update:node": "node scripts/update-node-versions.mjs",
-    "gen:reference": "node scripts/gen-reference.mjs",
-    "sync:mcp": "node scripts/sync-mcp-version.mjs"
+    "gen:reference": "node scripts/gen-reference.mjs"
   },
   "repository": {
     "type": "git",

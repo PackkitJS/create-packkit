@@ -39,7 +39,7 @@ npx create-packkit lib my-lib --no-install --no-git
 
 ## MCP server
 
-`packkit-mcp` exposes Packkit as Model Context Protocol tools (`packkit_schema`, `packkit_preview`, `packkit_scaffold`). MCP config: `{ "mcpServers": { "packkit": { "command": "npx", "args": ["-y", "packkit-mcp"] } } }`.
+`packkit-mcp` (https://github.com/PackkitJS/packkit-mcp) exposes every Packkit generator (JS/TS + Python) as Model Context Protocol tools (`list_generators`, `list_presets`, `get_generator_schema`, `generate_project`, `plan_upgrade`). MCP config: `{ "mcpServers": { "packkit": { "command": "npx", "args": ["-y", "packkit-mcp"] } } }`.
 
 ## Links
 - Web configurator: https://packkitjs.github.io/create-packkit/
