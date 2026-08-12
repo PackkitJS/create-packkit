@@ -1,6 +1,6 @@
 # Packkit Platform Migration — JS/TS scaffolder → multi-language platform
 
-Status: **Phases 2–5 complete; Phase 6 built** — `packkit-web` (multi-generator configurator, JS + Python, Cloudflare Pages) is built + CI-green, pending Dan's Cloudflare connect + retiring the old `create-packkit/docs`. Next: **Phase 7 — Worker target** · Owner: DanMat
+Status: **Phases 2–6 complete** — `packkit-web` (multi-generator configurator, JS + Python) is live at https://packkit-web.pages.dev/ and the old in-repo configurator is retired. Next: **Phase 7 — Worker target (#44)** · Owner: DanMat
 
 Packkit is evolving from "a JS/TS project generator" into a **provider-neutral
 project bootstrap and lifecycle platform**, where a language-agnostic core defines
@@ -271,19 +271,18 @@ hand; Phase 4 flips them over to generated, per-package changelogs.
       at `PackkitJS/packkit-mcp` (see RELEASING.md for the known-good config), and
       update the awesome-mcp-servers entry's Glama score-badge URL to the new repo.
 
-### Phase 6 — Extract `packkit-web` ▶ built, deploy pending
+### Phase 6 — Extract `packkit-web` ✅
 - [x] Own repo (`PackkitJS/packkit-web`); one UI renders any generator's schema via a
       per-generator adapter + language picker; **JS + Python** generate + ZIP + share
       links, all client-side (esbuild bundle of the browser-safe cores + JSZip).
-      CI green (shared `generator-ci@v1` runs build + an adapter smoke). Verified in a
-      real browser: language switch swaps schema/presets, Python generates the right
-      files + command.
-- **Hosting = Cloudflare Pages** (not GitHub Pages), chosen so a future "create + push
-      to a GitHub repo" feature can be added behind the reserved `functions/` seam
-      without re-platforming (OAuth token exchange needs a backend a static site can't
-      hold). **Remaining:** Dan connects the repo in the Cloudflare dashboard
-      (build `npm run build`, output `dist`); then the "single clean move" — retire the
-      old `create-packkit/docs` configurator (redirect to the new URL) once it's live.
+      CI green (shared `generator-ci@v1` runs build + an adapter smoke).
+- [x] **Live on Cloudflare Pages: https://packkit-web.pages.dev/** (verified in-browser
+      for both generators). Chosen over GitHub Pages so a future "create + push to a
+      GitHub repo" feature drops into the reserved `functions/` seam (OAuth token
+      exchange needs a backend a static site can't hold) with no re-platforming.
+- [x] **Single clean Pages move done:** retired the old `create-packkit/docs`
+      configurator → it now redirects to the new URL (GitHub Pages stays up for
+      `llms.txt` + old links); dropped `build:web` + the bundle-fresh CI job.
 
 ### Phase 7 — Worker target (#44) as cross-language validation
 - [ ] `node-worker` + `py-worker` on the shared `WorkerContract`: unit-testable
