@@ -4,13 +4,13 @@
 
 [![npm version](https://img.shields.io/npm/v/create-packkit?style=flat-square&logo=npm&color=cb3837)](https://www.npmjs.com/package/create-packkit)
 [![npm downloads](https://img.shields.io/npm/dm/create-packkit?style=flat-square&logo=npm&color=cb3837&label=downloads)](https://www.npmjs.com/package/create-packkit)
-[![CI](https://img.shields.io/github/actions/workflow/status/PackkitJS/create-packkit/ci.yml?style=flat-square&logo=github&label=CI&branch=main)](https://github.com/PackkitJS/create-packkit/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/PackkitJS/create-packkit-js/ci.yml?style=flat-square&logo=github&label=CI&branch=main)](https://github.com/PackkitJS/create-packkit-js/actions/workflows/ci.yml)
 [![install size](https://img.shields.io/badge/install%20size-tiny-44cc11?style=flat-square)](https://packagephobia.com/result?p=create-packkit)
 [![License: MIT](https://img.shields.io/npm/l/create-packkit?style=flat-square&color=blue)](LICENSE)
 <br/>
 [![Configure on the web](https://img.shields.io/badge/⚙_configure-on_the_web-00e5ff?style=flat-square)](https://packkit-web.pages.dev/)
 [![MCP server](https://img.shields.io/badge/MCP-packkit--mcp-8a5cf6?style=flat-square)](https://github.com/PackkitJS/packkit-mcp)
-[![llms.txt](https://img.shields.io/badge/llms.txt-✓-000000?style=flat-square)](https://packkitjs.github.io/create-packkit/llms.txt)
+[![llms.txt](https://img.shields.io/badge/llms.txt-✓-000000?style=flat-square)](https://packkitjs.github.io/create-packkit-js/llms.txt)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 
 Most scaffolders lock you into one stack, one language, and the terminal. Packkit lets you **choose** — TypeScript or JavaScript, library, CLI, app, service, or full-stack monorepo, ESM/CJS/dual, your bundler, test runner, linter, git hooks, release flow, GitHub Actions and more — and it works from a CLI **or** a browser page that downloads your project as a zip.
@@ -242,7 +242,7 @@ npx create-packkit --schema      # all options, presets, and aliases as JSON
 npx create-packkit my-lib ts-lib --no-install --no-git   # deterministic scaffold
 ```
 
-There's also an [`llms.txt`](llms.txt) (served at [packkitjs.github.io/create-packkit/llms.txt](https://packkitjs.github.io/create-packkit/llms.txt)) describing the commands for LLMs.
+There's also an [`llms.txt`](llms.txt) (served at [packkitjs.github.io/create-packkit-js/llms.txt](https://packkitjs.github.io/create-packkit-js/llms.txt)) describing the commands for LLMs.
 
 **MCP server** — [`packkit-mcp`](https://github.com/PackkitJS/packkit-mcp) exposes every Packkit generator (JS/TS + Python) as native [Model Context Protocol](https://modelcontextprotocol.io) tools. Add to your agent's MCP config:
 

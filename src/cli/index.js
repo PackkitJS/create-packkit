@@ -43,7 +43,7 @@ Usage:
 
 Run with no options for an interactive wizard, or add -y for recommended
 defaults in one shot. Every option is documented (with why-you'd-use-it) at:
-  https://packkitjs.github.io/create-packkit/   ·   and in the README reference.
+  https://packkitjs.github.io/create-packkit-js/   ·   and in the README reference.
 
 Presets:
   ${PRESET_NAMES.join('  ')}

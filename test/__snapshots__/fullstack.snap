@@ -519,7 +519,7 @@ export function describeHealth(h: Health): string {
 
 ===== packkit.json =====
 {
-  "$schema": "https://packkitjs.github.io/create-packkit/packkit.schema.json",
+  "$schema": "https://packkitjs.github.io/create-packkit-js/packkit.schema.json",
   "generator": "create-packkit",
   "preset": "fullstack",
   "settings": {

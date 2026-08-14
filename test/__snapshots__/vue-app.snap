@@ -361,7 +361,7 @@ export default tseslint.config(
 
 ===== packkit.json =====
 {
-  "$schema": "https://packkitjs.github.io/create-packkit/packkit.schema.json",
+  "$schema": "https://packkitjs.github.io/create-packkit-js/packkit.schema.json",
   "generator": "create-packkit",
   "preset": "vue-app",
   "settings": {
