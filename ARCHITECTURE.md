@@ -64,7 +64,7 @@ internal modules.
    its diagnostics and path safety), then adds what the embedded API never does:
    `git init`, install, creating the remote.
 
-6. **The web configurator uses the core directly.** [`PackkitJS/packkit-web`](https://github.com/PackkitJS/packkit-web)
+6. **The web configurator uses the core directly.** [`PackkitLabs/packkit-web`](https://github.com/PackkitLabs/packkit-web)
    bundles `src/core` and runs it client-side to preview and zip. No embedded layer,
    no server — which is why the core must stay browser-safe.
 

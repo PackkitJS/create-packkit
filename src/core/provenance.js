@@ -38,7 +38,7 @@ export function provenance(cfg, baseline) {
   }
 
   return toJson({
-    $schema: 'https://packkitjs.github.io/create-packkit-js/packkit.schema.json',
+    $schema: 'https://packkitlabs.github.io/create-packkit-js/packkit.schema.json',
     generator: 'create-packkit',
     ...(cfg.generatorVersion ? { version: cfg.generatorVersion } : {}),
     ...(cfg.preset ? { preset: cfg.preset } : {}),

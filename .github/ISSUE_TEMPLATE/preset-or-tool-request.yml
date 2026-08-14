@@ -46,6 +46,6 @@ body:
     attributes:
       label: Checklist
       options:
-        - label: I checked the [roadmap](https://github.com/PackkitJS/create-packkit/blob/main/ROADMAP.md) and existing issues.
+        - label: I checked the [roadmap](https://github.com/PackkitLabs/create-packkit/blob/main/ROADMAP.md) and existing issues.
           required: true
         - label: This works as a non-interactive flag/option (not a prompt-only feature).

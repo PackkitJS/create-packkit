@@ -5,4 +5,4 @@ on:
     - cron: '0 6 * * 1' # Mondays — catch newly-disclosed advisories without a code change
 jobs:
   security:
-    uses: PackkitJS/packkit-actions/.github/workflows/security.yml@v1
+    uses: PackkitLabs/packkit-actions/.github/workflows/security.yml@v1

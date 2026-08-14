@@ -37,13 +37,13 @@ unchanged. Generated output is byte-for-byte identical (17 preset snapshots).
 
 ### Changed
 
-- Migrated the MCP registry namespace to `io.github.PackkitJS`.
+- Migrated the MCP registry namespace to `io.github.PackkitLabs`.
 
 ## [3.3.2] - 2026-08-03
 
 ### Changed
 
-- De-namespaced URLs ahead of moving the project to the `PackkitJS` org.
+- De-namespaced URLs ahead of moving the project to the `PackkitLabs` org.
 - Refreshed the MCP lockfile for the prior release.
 
 ## [3.3.1] - 2026-08-02
@@ -70,8 +70,8 @@ unchanged. Generated output is byte-for-byte identical (17 preset snapshots).
 
 - Upgrade JSON error contract, input validation, and documentation corrections.
 
-[Unreleased]: https://github.com/PackkitJS/create-packkit/compare/v3.3.3...HEAD
-[3.3.3]: https://github.com/PackkitJS/create-packkit/compare/v3.3.2...v3.3.3
-[3.3.2]: https://github.com/PackkitJS/create-packkit/compare/v3.3.1...v3.3.2
-[3.3.1]: https://github.com/PackkitJS/create-packkit/compare/v3.3.0...v3.3.1
-[3.3.0]: https://github.com/PackkitJS/create-packkit/compare/v3.2.0...v3.3.0
+[Unreleased]: https://github.com/PackkitLabs/create-packkit/compare/v3.3.3...HEAD
+[3.3.3]: https://github.com/PackkitLabs/create-packkit/compare/v3.3.2...v3.3.3
+[3.3.2]: https://github.com/PackkitLabs/create-packkit/compare/v3.3.1...v3.3.2
+[3.3.1]: https://github.com/PackkitLabs/create-packkit/compare/v3.3.0...v3.3.1
+[3.3.0]: https://github.com/PackkitLabs/create-packkit/compare/v3.2.0...v3.3.0

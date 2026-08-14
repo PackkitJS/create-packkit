@@ -25,7 +25,7 @@ node bin/cli.js --preset full demo --no-install --no-git   # try the CLI
 3. Add/extend a test in `test/core.test.js`.
 
 Keep the core browser-safe (no `node:` built-ins) — the web configurator
-([`PackkitJS/packkit-web`](https://github.com/PackkitJS/packkit-web)) bundles it.
+([`PackkitLabs/packkit-web`](https://github.com/PackkitLabs/packkit-web)) bundles it.
 
 ## Pull requests
 

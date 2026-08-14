@@ -20,7 +20,7 @@ jobs:
       - run: npm ci
 
       # Re-derive offered Node lines + pins from nodejs.org. (The web configurator
-      # now lives in PackkitJS/packkit-web and rebuilds itself on deploy.)
+      # now lives in PackkitLabs/packkit-web and rebuilds itself on deploy.)
       - run: node scripts/update-node-versions.mjs
 
       - name: Open a PR when the Node lines changed

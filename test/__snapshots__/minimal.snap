@@ -170,7 +170,7 @@ MIT © Fixture Author <fixture@example.com>
 
 ===== packkit.json =====
 {
-  "$schema": "https://packkitjs.github.io/create-packkit-js/packkit.schema.json",
+  "$schema": "https://packkitlabs.github.io/create-packkit-js/packkit.schema.json",
   "generator": "create-packkit",
   "preset": "minimal",
   "settings": {

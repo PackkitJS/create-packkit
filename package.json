@@ -48,7 +48,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PackkitJS/create-packkit-js.git"
+    "url": "git+https://github.com/PackkitLabs/create-packkit-js.git"
   },
   "keywords": [
     "create",
@@ -67,7 +67,7 @@
   "author": "DanMat <dannymatthew@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PackkitJS/create-packkit-js/issues"
+    "url": "https://github.com/PackkitLabs/create-packkit-js/issues"
   },
   "homepage": "https://packkit-web.pages.dev/",
   "dependencies": {
