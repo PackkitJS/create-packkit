@@ -161,7 +161,7 @@ test('calculateProjectDigest is stable across repeated generation', () => {
 
 test('deriveDeploymentContract: shape per target, provider-neutral', () => {
   const svc = createProject({ preset: 'node-service', name: 'svc' }).deploymentContract;
-  assert.equal(svc.type, 'node-service');
+  assert.equal(svc.type, 'service'); // language-neutral contract (core 0.4.0), runtime names the language
   assert.equal(svc.runtime, 'node');
   assert.equal(svc.defaultPort, 3000);
   assert.equal(svc.portEnvironmentVariable, 'PORT');
@@ -181,7 +181,7 @@ test('deriveDeploymentContract: shape per target, provider-neutral', () => {
   const fs = createProject({ preset: 'fullstack', name: 'fs' }).deploymentContract;
   assert.equal(fs.type, 'fullstack');
   assert.deepEqual(fs.frontend, { type: 'static', buildCommand: 'pnpm build', outputDirectory: 'apps/web/dist' });
-  assert.equal(fs.backend.type, 'node-service');
+  assert.equal(fs.backend.type, 'service');
   assert.equal(fs.backend.healthCheckPath, '/api/health');
   assert.equal(fs.backend.defaultPort, 3000);
   assert.equal(fs.backend.containerFile, undefined, 'the fullstack server has no Dockerfile');

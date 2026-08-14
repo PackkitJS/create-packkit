@@ -103,7 +103,7 @@ application's job.
 ```js
 project.deploymentContract;
 // static app:    { type: 'static', buildCommand: 'npm run build', outputDirectory: 'dist' }
-// node service:  { type: 'node-service', buildCommand, startCommand, port, healthCheckPath }
+// http service:  { type: 'service', runtime: 'node', buildCommand, startCommand, defaultPort, healthCheckPath }
 // library / cli: { type: 'library' | 'cli', buildCommand? }
 ```
 

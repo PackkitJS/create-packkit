@@ -63,12 +63,14 @@ function staticContract(run, outputDirectory) {
 }
 
 function nodeServiceContract(buildCommand, startCommand, healthCheckPath, containerFile) {
-  // defaultPort/portEnvironmentVariable make the port semantics explicit: the
-  // service binds to 3000 by default and honors PORT — so PORT is optional, not
-  // required. requiredEnvironmentVariables is kept even when empty as an explicit
-  // "nothing else is required" signal for a provisioning host.
+  // Emits the language-neutral `service` contract (core 0.4.0) with runtime 'node' —
+  // a provider matches on the contract shape, not the language. defaultPort/
+  // portEnvironmentVariable make the port semantics explicit: the service binds to
+  // 3000 by default and honors PORT — so PORT is optional, not required.
+  // requiredEnvironmentVariables is kept even when empty as an explicit "nothing else
+  // is required" signal for a provisioning host.
   return prune({
-    type: 'node-service',
+    type: 'service',
     runtime: 'node',
     buildCommand,
     startCommand,
