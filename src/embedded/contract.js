@@ -37,6 +37,22 @@ export function deriveDeploymentContract(cfg) {
 
   if (targets.app) return staticContract(run, 'dist');
 
+  if (targets.worker) {
+    // A long-running non-HTTP process: liveness is the process (no port), it drains
+    // in-flight work on SIGTERM/SIGINT, and it ships a Dockerfile with no EXPOSE.
+    return {
+      type: 'worker',
+      runtime: `node-${cfg.nodeVersion}`,
+      buildCommand: build.has ? run('build') : undefined,
+      startCommand: start,
+      shutdown: { signals: ['SIGTERM', 'SIGINT'], drainsInflight: true },
+      health: { type: 'process' },
+      containerFile: 'Dockerfile',
+      requiredEnvironmentVariables: [],
+      optionalEnvironmentVariables: ['WORKER_MAX_ATTEMPTS', 'WORKER_LOG_LEVEL'],
+    };
+  }
+
   if (targets.cli) return prune({ type: 'cli', buildCommand: build.has ? run('build') : undefined });
 
   return prune({ type: 'library', buildCommand: build.has ? run('build') : undefined });

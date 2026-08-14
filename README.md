@@ -142,7 +142,7 @@ Every flag, its values (**default** in bold), and what it's for. Prefer the inte
 | `--language` | **ts** · js | TypeScript (strict, recommended) or plain ESM JavaScript. TS gives you types, editor help, and generated .d.ts for consumers. |
 | `--module` | **esm** · dual · cjs | How the package is consumed. ESM-only (default) is the modern, leanest choice — Node 20.19+/22.12+ can `require()` ESM. Pick dual only if you must support older CJS-only consumers; cjs-only is rarely needed. |
 | `--server` | **hono** · fastify · express | For the service target: Hono (fast, web-standard, tiny — default), Fastify (batteries-included, plugins, schema validation), or Express (ubiquitous, huge ecosystem). |
-| `--target` | **library** · cli · service · app | What you are building — mix and match: a library (importable package), a CLI (ships a bin), an HTTP service, or an app (Vite SPA). |
+| `--target` | **library** · cli · service · app · worker | What you are building — mix and match: a library (importable package), a CLI (ships a bin), an HTTP service, or an app (Vite SPA). |
 | `--monorepo` | on / off (default: **off**) | Generate a pnpm + Turborepo workspace with two linked example packages and Changesets. Only worth it when ≥2 packages share code. |
 | `--monorepo-layout` | **libraries** · fullstack | What the workspace contains. "libraries" gives linked packages you publish (Changesets). "fullstack" gives apps/web (React+Vite) + apps/server (Hono by default; --server for Fastify/Express) + packages/shared, wired together, with the server serving the web build in production. |
 | `--framework` | **none** · react · vue · svelte | UI framework for component libraries and apps: React, Vue, or Svelte (or none for a plain package). |
@@ -222,6 +222,7 @@ Named bundles of the options above — `npx packkit <preset> <name> -y`.
 | `svelte-lib` | `slib` | Svelte component library — ships source, peer svelte, jsdom tests. |
 | `svelte-app` | `sapp` | Svelte SPA — Vite dev server, build, Testing Library. |
 | `node-service` | `svc`, `service` | Node HTTP service (Hono) — tsx dev, tsup build, Dockerfile. |
+| `node-worker` | `worker` | Node background worker — queue/event consumer: handler seam, SIGTERM drain, JSON logs, poison seam, Dockerfile (no HTTP port). No transport SDK. |
 | `monorepo` | — | pnpm + Turborepo workspace — two example packages, Changesets, CI. |
 | `fullstack` | `fs`, `app` | Full-stack monorepo — React+Vite web, Hono/Fastify/Express API (--server), shared package; server serves the web build in production. |
 | `oss` | — | Full open-source library — coverage, CodeQL, Codecov, Renovate, Changesets. |

@@ -52,6 +52,7 @@ export const OPTIONS = {
       { value: 'cli', label: 'CLI tool (ships a bin)' },
       { value: 'service', label: 'HTTP service (Hono)' },
       { value: 'app', label: 'App (Vite SPA)' },
+      { value: 'worker', label: 'Worker (queue/event consumer)' },
     ],
   },
   monorepo: {
@@ -318,6 +319,7 @@ export function normalizeConfig(input = {}, diagnostics = null) {
   cfg.hasLibrary = cfg.target.includes('library');
   cfg.hasCli = cfg.target.includes('cli');
   cfg.hasService = cfg.target.includes('service');
+  cfg.hasWorker = cfg.target.includes('worker');
 
   // Vite builds apps and Vue libraries (SFCs); Svelte libraries ship source
   // (no build); React libraries use tsup (JSX is native to esbuild).
@@ -342,7 +344,7 @@ export function normalizeConfig(input = {}, diagnostics = null) {
   // A monorepo is its own generation path (see buildMonorepo); it has a build.
   if (cfg.monorepo) cfg.hasBuild = true;
 
-  cfg.publishable = (cfg.hasLibrary || cfg.hasCli) && !cfg.hasApp && !cfg.hasService;
+  cfg.publishable = (cfg.hasLibrary || cfg.hasCli) && !cfg.hasApp && !cfg.hasService && !cfg.hasWorker;
   // Package-correctness checks only make sense for a publishable package.
   if (!cfg.publishable) coerce('pkgChecks', false, 'PKG_CHECKS_REQUIRES_PUBLISHABLE', 'Package-correctness checks were disabled because this project is not published to npm.');
   // Sourcemaps + shipped source only matter for a published package.
@@ -372,7 +374,7 @@ export function normalizeConfig(input = {}, diagnostics = null) {
  */
 function resolvedView(cfg) {
   return {
-    targets: { library: cfg.hasLibrary, cli: cfg.hasCli, service: cfg.hasService, app: cfg.hasApp },
+    targets: { library: cfg.hasLibrary, cli: cfg.hasCli, service: cfg.hasService, app: cfg.hasApp, worker: cfg.hasWorker },
     language: { typescript: cfg.isTs, ext: cfg.ext, srcExt: cfg.srcExt },
     framework: { name: cfg.framework, react: cfg.isReact, vue: cfg.isVue, svelte: cfg.isSvelte, any: cfg.hasFramework },
     build: { vite: cfg.viteBuild, custom: cfg.customBuild, usesVite: cfg.usesVite, has: cfg.hasBuild },

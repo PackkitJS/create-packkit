@@ -14,6 +14,7 @@ import typescript from './typescript.js';
 import frameworks from './frameworks.js';
 import vite from './vite.js';
 import service from './service.js';
+import worker from './worker.js';
 import env from './env.js';
 import test from './test.js';
 import e2e from './e2e.js';
@@ -39,6 +40,7 @@ export default [
   frameworks,
   vite,
   service,
+  worker,
   env,
   test,
   e2e,

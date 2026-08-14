@@ -36,6 +36,7 @@ jobs:
           - svelte-lib
           - svelte-app
           - node-service
+          - node-worker
           - monorepo
           - fullstack
           - fullstack --server express
