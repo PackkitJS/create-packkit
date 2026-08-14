@@ -1,6 +1,6 @@
 {
   "name": "create-packkit",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Provider-neutral project generator for modern JS/TS — packages, CLIs, apps, services & full-stack repos — from a CLI or a web configurator, with an embedded API and safe upgrades.",
   "type": "module",
   "bin": {
