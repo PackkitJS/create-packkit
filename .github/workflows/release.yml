@@ -24,6 +24,7 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
           cache: npm
+      - run: npm install -g npm@^11.5.1 # OIDC trusted publishing needs npm >= 11.5.1
       - run: npm ci
       - run: npm test
 
@@ -44,9 +45,10 @@ jobs:
           git push --follow-tags
 
       - name: Publish create-packkit
+        # Tokenless: npm OIDC Trusted Publishing (no NPM_TOKEN) — the trusted publisher is
+        # configured on npmjs.com for PackkitLabs/create-packkit-js, workflow release.yml.
+        # id-token: write (above) provides the OIDC credential; provenance is automatic.
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: GitHub Release
         run: gh release create "v${{ steps.bump.outputs.version }}" --generate-notes
