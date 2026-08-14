@@ -8,8 +8,7 @@
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { createHash } from 'node:crypto';
-import { PACKKIT_PROTOCOL_VERSION } from '@packkit/core';
+import { PACKKIT_PROTOCOL_VERSION, calculateGeneratedProjectDigest } from '@packkit/core';
 import { GENERATOR_ID } from './constants.js';
 
 import {
@@ -276,13 +275,21 @@ export function extendProject(project, extension = {}, internal = {}) {
 export function exportProjectDefinition(project) {
   assertProject(project);
   const state = extensionState.get(project) || { files: {}, packageJson: {} };
+  // Honor BOTH extension sources: the rich embedded extendProject (WeakMap state)
+  // and @packkit/core's generic extendGeneratedProject (project.extensions). Both
+  // record { mode, content } per file, so a host can layer files either way and
+  // the intent survives export → replay.
+  const coreFiles = project.extensions?.files || {};
   return {
     schemaVersion: SCHEMA_VERSION,
     packkitVersion: project.metadata.generatorVersion,
     preset: project.metadata.preset,
     config: serializableConfig(project.config),
     extensions: {
-      files: Object.fromEntries(Object.entries(state.files).map(([p, e]) => [p, { content: e.content, mode: e.mode }])),
+      files: {
+        ...coreFiles,
+        ...Object.fromEntries(Object.entries(state.files).map(([p, e]) => [p, { content: e.content, mode: e.mode }])),
+      },
       packageJson: { ...state.packageJson },
     },
   };
@@ -428,14 +435,10 @@ export function upgradeProject(input = {}) {
  */
 export function calculateProjectDigest(project) {
   assertProject(project);
-  const h = createHash('sha256');
-  h.update('config\0');
-  h.update(JSON.stringify(serializableConfig(project.config)));
-  for (const path of Object.keys(project.files).sort()) {
-    h.update(`\0file\0${path}\0`);
-    h.update(project.files[path]);
-  }
-  return h.digest('hex');
+  // The canonical digest is a platform concept — delegate to @packkit/core so the
+  // same project yields the same identity across the CLI, embedded, MCP, web, and
+  // a replayed definition (and matches other generators' digests byte-for-byte).
+  return calculateGeneratedProjectDigest(project);
 }
 
 // ---- internals -------------------------------------------------------------
