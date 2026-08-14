@@ -1,6 +1,13 @@
 # Packkit Platform Migration — JS/TS scaffolder → multi-language platform
 
-Status: **Phases 2–6 complete** — `packkit-web` (multi-generator configurator, JS + Python) is live at https://packkit-web.pages.dev/ and the old in-repo configurator is retired. Next: **Phase 7 — Worker target (#44)** · Owner: DanMat
+Status: **Phases 2–6 + the Universal-Embedding consolidation complete.** `packkit-web` is live at https://packkit-web.pages.dev/. The whole ecosystem now runs on one lifecycle: `@packkit/core@0.2.0` owns the universal digest / extension / upgrade-envelope primitives and an **embedded lifecycle conformance suite** that **both** JS (`create-packkit@4.1.0`) and Python (`create-packkit-py@2.0.0`) pass; `provider-netlify` consumes core deployment contracts (no JS-generator coupling); `packkit-mcp@1.0.2` + `packkit-web` return the common upgrade envelope for both languages. A host integrates once and drives any generator by id. Next: **Phase 7 — Worker target (#44)** · Owner: DanMat
+
+### Universal-Embedding consolidation (done)
+- **`@packkit/core` 0.2.0** — `calculateGeneratedProjectDigest` (canonical identity), `extendGeneratedProject` (generic add/replace host files + provenance), `computeProjectUpgrade` + common `UpgradeResult` envelope, `ProjectDefinition.baseline?`/`GeneratedProject.extensions?`, `runEmbeddedLifecycleConformance`. Default entry stays browser-safe; manifest semantics stay per-generator.
+- **create-packkit 4.1.0** — delegates digest/extension/upgrade-envelope to core; rich embedded API kept intact; passes the lifecycle suite.
+- **create-packkit-py 2.0.0** — common upgrade envelope, extension survives replay, uses the core Node writer; passes the lifecycle suite.
+- **provider-netlify** — `provider × DeploymentContract`, not `provider × language` (dropped the `create-packkit` peer dep; consumes `@packkit/core`).
+- **Docs** — org profile + `@packkit/core` README document the three integration levels (universal core / language embedded / Node writer). Deferred: `createPackkit()` facade (a thin registry + helpers already suffices); a release workflow for `provider-netlify`.
 
 Packkit is evolving from "a JS/TS project generator" into a **provider-neutral
 project bootstrap and lifecycle platform**, where a language-agnostic core defines
