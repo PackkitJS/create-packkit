@@ -18,6 +18,11 @@ export const PRESETS = {
     test: 'vitest', lint: 'eslint-prettier', gitHooks: 'simple-git-hooks',
     release: 'none', workflows: ['ci'], deps: 'renovate', agents: true, vscode: true,
   },
+  'node-worker': {
+    language: 'ts', target: ['worker'], moduleFormat: 'esm', bundler: 'tsup',
+    test: 'vitest', lint: 'eslint-prettier', gitHooks: 'simple-git-hooks',
+    release: 'none', workflows: ['ci'], deps: 'renovate', agents: true, vscode: true,
+  },
   monorepo: { monorepo: true, language: 'ts', packageManager: 'pnpm' },
   fullstack: {
     monorepo: true, monorepoLayout: 'fullstack', language: 'ts', packageManager: 'pnpm',
@@ -60,6 +65,7 @@ export const PRESET_ALIASES = {
   fs: 'fullstack',
   app: 'fullstack',
   service: 'node-service',
+  worker: 'node-worker',
 };
 
 /** Resolve a preset name or alias to its canonical preset id (or undefined). */
@@ -83,6 +89,7 @@ export const PRESET_INFO = {
   'svelte-lib': 'Svelte component library — ships source, peer svelte, jsdom tests.',
   'svelte-app': 'Svelte SPA — Vite dev server, build, Testing Library.',
   'node-service': 'Node HTTP service (Hono) — tsx dev, tsup build, Dockerfile.',
+  'node-worker': 'Node background worker — queue/event consumer: handler seam, SIGTERM drain, JSON logs, poison seam, Dockerfile (no HTTP port). No transport SDK.',
   monorepo: 'pnpm + Turborepo workspace — two example packages, Changesets, CI.',
   fullstack: 'Full-stack monorepo — React+Vite web, Hono/Fastify/Express API (--server), shared package; server serves the web build in production.',
   oss: 'Full open-source library — coverage, CodeQL, Codecov, Renovate, Changesets.',

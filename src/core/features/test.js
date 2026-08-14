@@ -68,6 +68,11 @@ export default {
       files[`src/index.test.${testExt}`] = exampleTest('node', cfg);
     }
 
+    // A worker ships its own tests (handler + SIGTERM drain) from the worker
+    // feature, and its index.ts is a process entry, not a testable export — so drop
+    // the default example test that would import (and start) it.
+    if (cfg.hasWorker) delete files[`src/index.test.${testExt}`];
+
     // Express services test through supertest (no built-in inject).
     if (cfg.hasService && cfg.serviceFramework === 'express') {
       pkg.devDependencies.supertest = V.supertest;

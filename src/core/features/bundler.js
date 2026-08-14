@@ -74,10 +74,10 @@ export default {
       pkg.scripts.dev = 'tsc --watch';
     }
 
-    // A service owns its `dev` script (tsx/node --watch on the server entry); the
-    // bundler only builds it. Don't also contribute a `dev` — that was a silent
-    // conflict the two features "resolved" purely by array order.
-    if (cfg.hasService) delete pkg.scripts.dev;
+    // A service or worker owns its `dev` script (tsx/node --watch on the process
+    // entry); the bundler only builds it. Don't also contribute a `dev` — that was a
+    // silent conflict the two features "resolved" purely by array order.
+    if (cfg.hasService || cfg.hasWorker) delete pkg.scripts.dev;
 
     if (build) pkg.scripts.prepublishOnly = pkg.scripts.build;
     pkg.scripts.clean = 'rimraf dist';
