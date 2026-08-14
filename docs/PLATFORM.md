@@ -1,6 +1,6 @@
 # Packkit Platform Migration — JS/TS scaffolder → multi-language platform
 
-Status: **Phases 2–7 + the Universal-Embedding consolidation complete.** `packkit-web` is live at https://packkit-web.pages.dev/. The whole ecosystem runs on one lifecycle: `@packkit/core@0.3.0` owns the universal digest / extension / upgrade-envelope primitives + the `createPackkit()` facade + an **embedded lifecycle conformance suite** that both JS (`create-packkit@4.2.0`) and Python (`create-packkit-py@2.1.0`) pass; `provider-netlify@0.1.2` consumes core deployment contracts (no JS-generator coupling); `packkit-mcp@1.0.2` + `packkit-web` return the common upgrade envelope for both languages. **Phase 7** shipped `node-worker` + `py-worker` on the identical `WorkerDeploymentContract` with **zero core changes** — the cross-language proof. A host integrates once and drives any generator by id. **Phase 8 (Go spike) COMPLETE**: [`create-packkit-go@0.3.1`](https://github.com/PackkitLabs/create-packkit-go) ships `go-lib`/`go-cli`/`go-worker`/`go-service`. Go is a first-class language: it drove exactly **one** core change — `@packkit/core@0.4.0` generalized the npm-named `node-service` deployment type to the language-neutral **`service`** (`runtime: string`), the last npm concept in core. The whole ecosystem realigned to core 0.4.0 with **no split core** (`create-packkit@4.3.0`, `create-packkit-py@2.1.1`, `provider-netlify@0.1.3`); **`packkit-mcp@1.1.0`** + **`packkit-web`** now front **JS + Python + Go**. **Phase 9 DONE** — the JS repo is renamed `PackkitLabs/create-packkit-js` (npm name/CLI still `create-packkit`), all URLs/Pages/schema references audited. Only **Phase 10 (org rename)** — a branding checkpoint — remains · Owner: DanMat
+Status: **Phases 2–7 + the Universal-Embedding consolidation complete.** `packkit-web` is live at https://packkit-web.pages.dev/. The whole ecosystem runs on one lifecycle: `@packkit/core@0.3.0` owns the universal digest / extension / upgrade-envelope primitives + the `createPackkit()` facade + an **embedded lifecycle conformance suite** that both JS (`create-packkit@4.2.0`) and Python (`create-packkit-py@2.1.0`) pass; `provider-netlify@0.1.2` consumes core deployment contracts (no JS-generator coupling); `packkit-mcp@1.0.2` + `packkit-web` return the common upgrade envelope for both languages. **Phase 7** shipped `node-worker` + `py-worker` on the identical `WorkerDeploymentContract` with **zero core changes** — the cross-language proof. A host integrates once and drives any generator by id. **Phase 8 (Go spike) COMPLETE**: [`create-packkit-go@0.3.1`](https://github.com/PackkitLabs/create-packkit-go) ships `go-lib`/`go-cli`/`go-worker`/`go-service`. Go is a first-class language: it drove exactly **one** core change — `@packkit/core@0.4.0` generalized the npm-named `node-service` deployment type to the language-neutral **`service`** (`runtime: string`), the last npm concept in core. The whole ecosystem realigned to core 0.4.0 with **no split core** (`create-packkit@4.3.0`, `create-packkit-py@2.1.1`, `provider-netlify@0.1.3`); **`packkit-mcp@1.1.0`** + **`packkit-web`** now front **JS + Python + Go**. **Phase 9 DONE** — the JS repo is renamed `PackkitLabs/create-packkit-js` (npm name/CLI still `create-packkit`). **Phase 10 DONE** — the org is renamed **`PackkitLabs`** and every reference swept (8 repos, CI green, sites live). **The whole 10-phase platform migration is complete.** Only Dan's npm OIDC trusted-publisher reconfig (PackkitJS→PackkitLabs, 5 packages) + optional cosmetic republishes remain · Owner: DanMat
 
 ### Universal-Embedding consolidation (done)
 - **`@packkit/core` 0.2.0** — `calculateGeneratedProjectDigest` (canonical identity), `extendGeneratedProject` (generic add/replace host files + provenance), `computeProjectUpgrade` + common `UpgradeResult` envelope, `ProjectDefinition.baseline?`/`GeneratedProject.extensions?`, `runEmbeddedLifecycleConformance`. Default entry stays browser-safe; manifest semantics stay per-generator.
@@ -370,9 +370,22 @@ renames (Phases 9–10) remain.
       `create-packkit-js`). `philatelyos-architecture` refs left as-is (separate project,
       GitHub redirect covers them).
 
-### Phase 10 — Org rename (finale 😅)
-- [ ] Branding checkpoint once JS/Python/Go(/IaC) ship; if renaming, execute with a
-      full redirect/URL audit. The last task.
+### Phase 10 — Org rename (finale 😅) ✅ CODE SWEEP DONE
+- [x] **Org renamed `PackkitJS` → `PackkitLabs`** (Dan; GitHub redirects all repo URLs
+      + `uses:` refs). Full code sweep shipped across all 8 repos: every `PackkitJS`
+      reference and the `packkitjs.github.io` → `packkitlabs.github.io` Pages subdomain
+      (URLs, badges, workflow `uses:`, repo metadata, MCP registry id
+      `io.github.PackkitLabs/packkit-mcp`, web adapter `repoUrl`s, and the emitted
+      `$schema` in all three generators' output — snapshots regenerated). CI green
+      everywhere; `packkit-web` (CF) + `packkitlabs.github.io/create-packkit-js/` both
+      live. The `@packkit` npm scope and all package names/CLIs are unchanged.
+- [ ] **Remaining (Dan — account-level):** reconfigure the npm **OIDC Trusted
+      Publishers** for the 5 OIDC packages (`@packkit/core`, `create-packkit-py`,
+      `create-packkit-go`, `@packkit/provider-netlify`, `packkit-mcp`) from
+      `PackkitJS/<repo>` → `PackkitLabs/<repo>` — until then their next OIDC publish
+      would 403. (`create-packkit` publishes via `NPM_TOKEN`, unaffected.) Then optional
+      follow-up releases republish the `packkitlabs.github.io` schema URL into generated
+      output + the MCP registry entry under the new namespace (low-urgency, cosmetic).
 
 ## 7. Deferred / out of scope
 
