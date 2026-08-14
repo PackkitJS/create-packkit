@@ -1,6 +1,6 @@
 # Packkit Platform Migration — JS/TS scaffolder → multi-language platform
 
-Status: **Phases 2–6 + the Universal-Embedding consolidation complete.** `packkit-web` is live at https://packkit-web.pages.dev/. The whole ecosystem now runs on one lifecycle: `@packkit/core@0.2.0` owns the universal digest / extension / upgrade-envelope primitives and an **embedded lifecycle conformance suite** that **both** JS (`create-packkit@4.1.0`) and Python (`create-packkit-py@2.0.0`) pass; `provider-netlify` consumes core deployment contracts (no JS-generator coupling); `packkit-mcp@1.0.2` + `packkit-web` return the common upgrade envelope for both languages. A host integrates once and drives any generator by id. Next: **Phase 7 — Worker target (#44)** · Owner: DanMat
+Status: **Phases 2–7 + the Universal-Embedding consolidation complete.** `packkit-web` is live at https://packkit-web.pages.dev/. The whole ecosystem runs on one lifecycle: `@packkit/core@0.3.0` owns the universal digest / extension / upgrade-envelope primitives + the `createPackkit()` facade + an **embedded lifecycle conformance suite** that both JS (`create-packkit@4.2.0`) and Python (`create-packkit-py@2.1.0`) pass; `provider-netlify@0.1.2` consumes core deployment contracts (no JS-generator coupling); `packkit-mcp@1.0.2` + `packkit-web` return the common upgrade envelope for both languages. **Phase 7** shipped `node-worker` + `py-worker` on the identical `WorkerDeploymentContract` with **zero core changes** — the cross-language proof. A host integrates once and drives any generator by id. Next: **Phase 8 — Go generator spike** · Owner: DanMat
 
 ### Universal-Embedding consolidation (done)
 - **`@packkit/core` 0.2.0** — `calculateGeneratedProjectDigest` (canonical identity), `extendGeneratedProject` (generic add/replace host files + provenance), `computeProjectUpgrade` + common `UpgradeResult` envelope, `ProjectDefinition.baseline?`/`GeneratedProject.extensions?`, `runEmbeddedLifecycleConformance`. Default entry stays browser-safe; manifest semantics stay per-generator.
@@ -291,11 +291,16 @@ hand; Phase 4 flips them over to generated, per-package changelogs.
       configurator → it now redirects to the new URL (GitHub Pages stays up for
       `llms.txt` + old links); dropped `build:web` + the bundle-fresh CI job.
 
-### Phase 7 — Worker target (#44) as cross-language validation
-- [ ] `node-worker` + `py-worker` on the shared `WorkerContract`: unit-testable
-      `handler` seam, graceful SIGTERM/SIGINT drain, structured stdout logs,
-      poison-message seam, env parsing, Dockerfile with no EXPOSE/HTTP healthcheck,
-      no transport SDK. Test proves exit 0 after drain. Closes #44.
+### Phase 7 — Worker target (#44) as cross-language validation ✅
+- [x] `node-worker` (`create-packkit@4.2.0`) + `py-worker` (`create-packkit-py@2.1.0`)
+      on the shared `WorkerDeploymentContract` — **zero core changes**, proving the
+      contract is truly universal. Each emits a unit-testable `handle()` seam, a
+      runner that drains in-flight work on SIGTERM/SIGINT and **exits 0**, structured
+      JSON stdout logs, a poison-message seam (bounded retries), env config, a
+      `python -m` / `node dist/index.js` entry, and a Dockerfile with **no
+      EXPOSE/HTTP healthcheck** (`STOPSIGNAL SIGTERM`). No transport SDK — a `receive()`
+      seam is wired to a stdin demo source. Each generator's own test proves the
+      SIGTERM drain exits 0, and both integration matrices run the worker in CI. Closes #44.
 
 ### Phase 8 — Go generator spike (`create-packkit-go`)
 - [ ] `go-lib`/`go-cli`/`go-service`/`go-worker` implementing `PackkitGenerator`
