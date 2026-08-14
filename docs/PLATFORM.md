@@ -1,6 +1,6 @@
 # Packkit Platform Migration — JS/TS scaffolder → multi-language platform
 
-Status: **Phases 2–7 + the Universal-Embedding consolidation complete.** `packkit-web` is live at https://packkit-web.pages.dev/. The whole ecosystem runs on one lifecycle: `@packkit/core@0.3.0` owns the universal digest / extension / upgrade-envelope primitives + the `createPackkit()` facade + an **embedded lifecycle conformance suite** that both JS (`create-packkit@4.2.0`) and Python (`create-packkit-py@2.1.0`) pass; `provider-netlify@0.1.2` consumes core deployment contracts (no JS-generator coupling); `packkit-mcp@1.0.2` + `packkit-web` return the common upgrade envelope for both languages. **Phase 7** shipped `node-worker` + `py-worker` on the identical `WorkerDeploymentContract` with **zero core changes** — the cross-language proof. A host integrates once and drives any generator by id. Next: **Phase 8 — Go generator spike** · Owner: DanMat
+Status: **Phases 2–7 + the Universal-Embedding consolidation complete.** `packkit-web` is live at https://packkit-web.pages.dev/. The whole ecosystem runs on one lifecycle: `@packkit/core@0.3.0` owns the universal digest / extension / upgrade-envelope primitives + the `createPackkit()` facade + an **embedded lifecycle conformance suite** that both JS (`create-packkit@4.2.0`) and Python (`create-packkit-py@2.1.0`) pass; `provider-netlify@0.1.2` consumes core deployment contracts (no JS-generator coupling); `packkit-mcp@1.0.2` + `packkit-web` return the common upgrade envelope for both languages. **Phase 7** shipped `node-worker` + `py-worker` on the identical `WorkerDeploymentContract` with **zero core changes** — the cross-language proof. A host integrates once and drives any generator by id. **Phase 8 (Go spike) Slice 1 shipped**: [`create-packkit-go@0.1.0`](https://github.com/PackkitJS/create-packkit-go) `go-lib` passes both conformance suites with **zero core changes** (CI + Go integration green; publish pending the new-package npm Trusted Publisher). Next: **Phase 8 — `go-cli`/`go-service`/`go-worker`** · Owner: DanMat
 
 ### Universal-Embedding consolidation (done)
 - **`@packkit/core` 0.2.0** — `calculateGeneratedProjectDigest` (canonical identity), `extendGeneratedProject` (generic add/replace host files + provenance), `computeProjectUpgrade` + common `UpgradeResult` envelope, `ProjectDefinition.baseline?`/`GeneratedProject.extensions?`, `runEmbeddedLifecycleConformance`. Default entry stays browser-safe; manifest semantics stay per-generator.
@@ -303,8 +303,21 @@ hand; Phase 4 flips them over to generated, per-package changelogs.
       SIGTERM drain exits 0, and both integration matrices run the worker in CI. Closes #44.
 
 ### Phase 8 — Go generator spike (`create-packkit-go`)
-- [ ] `go-lib`/`go-cli`/`go-service`/`go-worker` implementing `PackkitGenerator`
-      with **zero core changes** — the proof core isn't modeling npm/Python.
+- [x] **Slice 1 — `go-lib` (shipped repo, ✅ zero core changes).**
+      [`create-packkit-go`](https://github.com/PackkitJS/create-packkit-go) is a JS
+      generator whose output is an idiomatic Go project (a `go.mod` module, a
+      documented package, a table test). `goGenerator` passes BOTH
+      `runGeneratorConformanceSuite` and `runEmbeddedLifecycleConformance` — the same
+      suites JS/Python pass — with **no `@packkit/core` change**. Go-specific `go.mod`
+      semantics live in `goModDiffer` (never in core). Generated `go-lib` is
+      gofmt-clean and passes `go vet`/`go build`/`go test`, proven end-to-end in CI
+      (`scripts/integration.mjs` + a new `setup-go` path in
+      `packkit-actions@v1.3.0`'s `generator-integration`). CI + Integration green;
+      `0.1.0` publish awaits the npm Trusted Publisher config for the new package name.
+- [ ] `go-cli`/`go-service`/`go-worker` implementing `PackkitGenerator`, still with
+      **zero core changes** — except `go-service` is expected to surface the one
+      legitimate generalization: `DeploymentType 'node-service'` → a language-neutral
+      service type (the milestone's permitted core improvement).
 
 ### Phase 9 — Repo rename + full doc/URL audit
 - [ ] Rename `create-packkit` → `create-packkit-js` (npm name/CLI unchanged); audit
