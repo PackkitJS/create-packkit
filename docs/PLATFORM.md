@@ -1,6 +1,6 @@
 # Packkit Platform Migration — JS/TS scaffolder → multi-language platform
 
-Status: **Phases 2–7 + the Universal-Embedding consolidation complete.** `packkit-web` is live at https://packkit-web.pages.dev/. The whole ecosystem runs on one lifecycle: `@packkit/core@0.3.0` owns the universal digest / extension / upgrade-envelope primitives + the `createPackkit()` facade + an **embedded lifecycle conformance suite** that both JS (`create-packkit@4.2.0`) and Python (`create-packkit-py@2.1.0`) pass; `provider-netlify@0.1.2` consumes core deployment contracts (no JS-generator coupling); `packkit-mcp@1.0.2` + `packkit-web` return the common upgrade envelope for both languages. **Phase 7** shipped `node-worker` + `py-worker` on the identical `WorkerDeploymentContract` with **zero core changes** — the cross-language proof. A host integrates once and drives any generator by id. **Phase 8 (Go spike) in progress**: [`create-packkit-go`](https://github.com/PackkitJS/create-packkit-go) ships `go-lib` (`0.1.0` on npm), `go-cli`, and `go-worker` — the third cross-language worker (same `WorkerDeploymentContract`, SIGTERM-drain-exits-0) — all with **zero core changes**; CI + real-Go integration green (Version PR → `0.2.0`). Next: **Phase 8 — `go-service`** (surfaces the permitted `node-service` → language-neutral service-type core change) · Owner: DanMat
+Status: **Phases 2–7 + the Universal-Embedding consolidation complete.** `packkit-web` is live at https://packkit-web.pages.dev/. The whole ecosystem runs on one lifecycle: `@packkit/core@0.3.0` owns the universal digest / extension / upgrade-envelope primitives + the `createPackkit()` facade + an **embedded lifecycle conformance suite** that both JS (`create-packkit@4.2.0`) and Python (`create-packkit-py@2.1.0`) pass; `provider-netlify@0.1.2` consumes core deployment contracts (no JS-generator coupling); `packkit-mcp@1.0.2` + `packkit-web` return the common upgrade envelope for both languages. **Phase 7** shipped `node-worker` + `py-worker` on the identical `WorkerDeploymentContract` with **zero core changes** — the cross-language proof. A host integrates once and drives any generator by id. **Phase 8 (Go spike) COMPLETE**: [`create-packkit-go@0.3.1`](https://github.com/PackkitJS/create-packkit-go) ships `go-lib`/`go-cli`/`go-worker`/`go-service`. Go is a first-class language: it drove exactly **one** core change — `@packkit/core@0.4.0` generalized the npm-named `node-service` deployment type to the language-neutral **`service`** (`runtime: string`), the last npm concept in core. The whole ecosystem realigned to core 0.4.0 with **no split core** (`create-packkit@4.3.0`, `create-packkit-py@2.1.1`, `provider-netlify@0.1.3`); **`packkit-mcp@1.1.0`** + **`packkit-web`** now front **JS + Python + Go**. Next: **Phase 9 — repo rename** (`create-packkit` → `create-packkit-js`) · Owner: DanMat
 
 ### Universal-Embedding consolidation (done)
 - **`@packkit/core` 0.2.0** — `calculateGeneratedProjectDigest` (canonical identity), `extendGeneratedProject` (generic add/replace host files + provenance), `computeProjectUpgrade` + common `UpgradeResult` envelope, `ProjectDefinition.baseline?`/`GeneratedProject.extensions?`, `runEmbeddedLifecycleConformance`. Default entry stays browser-safe; manifest semantics stay per-generator.
@@ -328,9 +328,31 @@ hand; Phase 4 flips them over to generated, per-package changelogs.
       EXPOSE, `STOPSIGNAL SIGTERM`). The generated worker's own test builds the binary,
       SIGTERMs it, and asserts drain + exit 0 — run in the real-Go CI matrix. Proof the
       worker archetype lives in core, not in a language. (Version PR → `0.2.0`.)
-- [ ] `go-service` (HTTP) implementing `PackkitGenerator` — the one slice expected to
-      surface the one legitimate generalization: `DeploymentType 'node-service'` (npm-named)
-      → a language-neutral service type (the milestone's permitted core improvement).
+- [x] **Slice 4 — `go-service` (HTTP) — surfaced the one permitted core change.** A
+      `net/http` server (`NewHandler` router seam serving `/` + `/healthz`, `Run` binding
+      `$PORT`, JSON logs, graceful `http.Server.Shutdown` drain on SIGTERM/SIGINT), a
+      `cmd/` entry, and a distroless `Dockerfile`. As anticipated, it forced **the single
+      legitimate core generalization**: `@packkit/core@0.4.0` renamed the npm-flavored
+      `node-service` deployment type (`type:'node-service'`, `runtime:'node'`) to the
+      language-neutral **`service`** (`type:'service'`, `runtime:string`) — mirroring the
+      already-neutral `worker` contract. A Node, Python, or Go HTTP service now emit the
+      *same* contract with `runtime` `'node'`/`'python-3.12'`/`'go-1.x'`; a provider
+      matches on shape, never language. This was the **last npm concept in core** — the
+      Go spike's whole justification. Generated `go-service` is gofmt-clean and passes
+      `go vet`/`build`/`test` including an `httptest` handler test and a live-server boot
+      + `/healthz` + graceful-shutdown test; CI runs all four presets. (`0.3.1`.)
+
+**Phase 8 COMPLETE — Go is a first-class language, cascade shipped.** The `node-service`
+→ `service` generalization rippled cleanly across the ecosystem (Dan: "no real users,
+don't worry about churn"), all realigned to **`@packkit/core@0.4.0`** with **no split
+core**: `create-packkit@4.3.0` (emits `type:'service'` `runtime:'node'`; `node-service`
+*preset* name unchanged — it's a Node scaffold), `create-packkit-py@2.1.1`,
+`create-packkit-go@0.3.1`, `@packkit/provider-netlify@0.1.3`. **`packkit-mcp@1.1.0`**
+registers the Go generator → the server now fronts **JavaScript + Python + Go** (smoke
+generates a Go `service` project through the protocol; experimental presets gated).
+**`packkit-web`** gained a Go adapter → the configurator offers all three languages
+(`go-lib`/`go-cli`/`go-worker`/`go-service`), verified in-browser. Only the org/repo
+renames (Phases 9–10) remain.
 
 ### Phase 9 — Repo rename + full doc/URL audit
 - [ ] Rename `create-packkit` → `create-packkit-js` (npm name/CLI unchanged); audit
