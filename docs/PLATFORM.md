@@ -324,6 +324,14 @@ hand; Phase 4 flips them over to generated, per-package changelogs.
 - **#45 Terraform/OpenTofu** — not in create-packkit-js. After Phase 8 proves the
   contract across programming languages, revisit as a dedicated `create-packkit-iac`
   / `create-packkit-tofu` generator. Leave #45 open with that note.
+- **#70 Polyglot contract packages** (one repo → npm **and** PyPI from one tag; a
+  JS-package-and-Python-package with a language-neutral schema source of truth).
+  **Decided shape: Shape 2 — a reusable release capability in `packkit-actions`
+  (dual-registry OIDC + version-sync check + partial-publish recovery + optional
+  codegen-drift gate), NOT a generator/core change.** Deferred (non-blocking); does
+  not touch the generator↔language 1:1:1 model, so it never influences the protocol
+  or new-language work. Partial-publish recovery = publish PyPI first (recoverable),
+  gate npm (immutable) on its success. Leave #70 open.
 - **Python tool matrix** (Poetry/PDM/Flit, black/isort/pyright, tox/nox, Django/
   FastAPI/Flask) — only after Python reaches lifecycle parity (Phase 3).
 
