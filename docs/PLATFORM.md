@@ -1,49 +1,55 @@
-# Packkit Platform Migration — JS/TS scaffolder → multi-language platform
+# Packkit Platform — architecture & invariants
 
-Status: **Phases 2–7 + the Universal-Embedding consolidation complete.** `packkit-web` is live at https://packkit-web.pages.dev/. The whole ecosystem runs on one lifecycle: `@packkit/core@0.3.0` owns the universal digest / extension / upgrade-envelope primitives + the `createPackkit()` facade + an **embedded lifecycle conformance suite** that both JS (`create-packkit@4.2.0`) and Python (`create-packkit-py@2.1.0`) pass; `provider-netlify@0.1.2` consumes core deployment contracts (no JS-generator coupling); `packkit-mcp@1.0.2` + `packkit-web` return the common upgrade envelope for both languages. **Phase 7** shipped `node-worker` + `py-worker` on the identical `WorkerDeploymentContract` with **zero core changes** — the cross-language proof. A host integrates once and drives any generator by id. **Phase 8 (Go spike) COMPLETE**: [`create-packkit-go@0.3.1`](https://github.com/PackkitLabs/create-packkit-go) ships `go-lib`/`go-cli`/`go-worker`/`go-service`. Go is a first-class language: it drove exactly **one** core change — `@packkit/core@0.4.0` generalized the npm-named `node-service` deployment type to the language-neutral **`service`** (`runtime: string`), the last npm concept in core. The whole ecosystem realigned to core 0.4.0 with **no split core** (`create-packkit@4.3.0`, `create-packkit-py@2.1.1`, `provider-netlify@0.1.3`); **`packkit-mcp@1.1.0`** + **`packkit-web`** now front **JS + Python + Go**. **Phase 9 DONE** — the JS repo is renamed `PackkitLabs/create-packkit-js` (npm name/CLI still `create-packkit`). **Phase 10 DONE** — the org is renamed **`PackkitLabs`** and every reference swept (8 repos, CI green, sites live). **The whole 10-phase platform migration is complete.** Only Dan's npm OIDC trusted-publisher reconfig (PackkitJS→PackkitLabs, 5 packages) + optional cosmetic republishes remain · Owner: DanMat
+**What Packkit is:** a **provider-neutral project bootstrap and lifecycle
+platform**. A language-agnostic core (`@packkit/core`) defines a **versioned
+protocol**; per-language generators implement it; surfaces (MCP server, web
+configurator) drive any generator through the protocol; deployment providers act
+on the neutral **deployment contract**, never on a generator or a language. A
+host integrates once and drives JavaScript, Python, or Go by id.
 
-### Universal-Embedding consolidation (done)
-- **`@packkit/core` 0.2.0** — `calculateGeneratedProjectDigest` (canonical identity), `extendGeneratedProject` (generic add/replace host files + provenance), `computeProjectUpgrade` + common `UpgradeResult` envelope, `ProjectDefinition.baseline?`/`GeneratedProject.extensions?`, `runEmbeddedLifecycleConformance`. Default entry stays browser-safe; manifest semantics stay per-generator.
-- **create-packkit 4.1.0** — delegates digest/extension/upgrade-envelope to core; rich embedded API kept intact; passes the lifecycle suite.
-- **create-packkit-py 2.0.0** — common upgrade envelope, extension survives replay, uses the core Node writer; passes the lifecycle suite.
-- **provider-netlify** — `provider × DeploymentContract`, not `provider × language` (dropped the `create-packkit` peer dep; consumes `@packkit/core`).
-- **Docs** — org profile + `@packkit/core` README document the three integration levels (universal core / language embedded / Node writer). Deferred: `createPackkit()` facade (a thin registry + helpers already suffices); a release workflow for `provider-netlify`.
+This document describes the platform **as it stands today**. The phase-by-phase
+story of how it got here lives in
+[`history/PLATFORM-MIGRATION.md`](./history/PLATFORM-MIGRATION.md).
 
-Packkit is evolving from "a JS/TS project generator" into a **provider-neutral
-project bootstrap and lifecycle platform**, where a language-agnostic core defines
-a **versioned protocol** and per-language generators implement it — proven not by a
-shared TypeScript interface alone, but by an **executable conformance suite**.
-`create-packkit-py` already proves the model (a JS generator that emits idiomatic
-Python). This document is the plan and the backlog.
+Guiding rule that still governs every change: **contract-first, not mechanical
+extraction.** Only genuinely language-neutral concepts belong in core. The Go
+spike (a third language) proved this empirically — it forced exactly **one** core
+change, the `node-service` → language-neutral `service` generalization.
 
-Guiding rule: **contract-first, not mechanical extraction.** We extract concepts
-that are genuinely language-neutral, not whatever two repos happen to duplicate.
-No files move until the extraction map shows clean dependency direction and the
-Phase-1 characterization tests are in place (they are).
+---
 
-## 1. Target architecture
+## 1. Architecture
 
 ```text
 PackkitLabs/
-├── packkit-core        # the versioned protocol + primitives + conformance suite — no language templates
-├── create-packkit      # JS/TS generator (repo renamed to create-packkit-js LAST; npm name stays create-packkit)
-├── create-packkit-py   # Python generator (exists)
-├── packkit-actions     # reusable CI workflows — stood up BEFORE mcp/web so they don't duplicate CI
-├── packkit-mcp         # extracted from create-packkit/mcp; fronts every generator
-├── packkit-web         # extracted configurator; renders any generator's schema
-├── provider-netlify    # exists; contract-driven
-└── .github
+├── packkit-core        # @packkit/core — the versioned protocol + primitives + conformance suites
+├── create-packkit-js   # JavaScript/TypeScript generator (npm name & CLI stay `create-packkit`)
+├── create-packkit-py   # Python generator
+├── create-packkit-go   # Go generator
+├── packkit-actions     # reusable CI/release workflows (workflow_call)
+├── packkit-mcp         # MCP server — fronts every generator through the protocol
+├── packkit-web         # web configurator — renders any generator's schema (live on Cloudflare Pages)
+├── provider-netlify    # deployment provider (API-driven: plan + apply)
+├── provider-aws        # deployment provider (IaC-emitting: plan)
+└── .github             # org profile
 ```
 
-Dependency direction is one-way and acyclic: `packkit-core` ← generators ←
-{mcp, web, providers}. Nothing downstream imports a generator's internals.
+Dependency direction is one-way and acyclic:
+`packkit-core` ← generators ← { mcp, web, providers }. Nothing downstream imports
+a generator's internals; providers never import a generator at all — they consume
+the neutral deployment contract structurally.
+
+**Live surfaces:**
+- Web configurator — <https://packkit-web.pages.dev/> (JS + Python + Go + fullstack composition, all client-side).
+- JS generator docs/schema — <https://packkitlabs.github.io/create-packkit-js/>.
+- MCP server — `packkit-mcp` on npm; official registry id `io.github.PackkitLabs/packkit-mcp`.
 
 ## 2. The core contract & protocol (`@packkit/core`)
 
 ### 2.1 Protocol version, separate from package version
 
 The ecosystem contract has its own version, **decoupled from `@packkit/core`'s
-semver**. `@packkit/core` can release 1.4.0 without changing the protocol; only a
+semver**. Core can release a new minor without touching the protocol; only a
 genuinely incompatible contract bumps the protocol.
 
 ```ts
@@ -53,7 +59,7 @@ export const PACKKIT_PROTOCOL_VERSION = 1;
 Project definitions and provenance carry both:
 
 ```json
-{ "schemaVersion": 3, "protocolVersion": 1, "generator": { "id": "python", "version": "1.2.0" } }
+{ "schemaVersion": 3, "protocolVersion": 1, "generator": { "id": "python", "version": "2.2.0" } }
 ```
 
 ### 2.2 `PackkitGenerator` with capability negotiation
@@ -83,360 +89,169 @@ type GeneratorCapability =
 ```
 
 Consumers gate on capabilities: `generator.protocol.capabilities.includes('baseline-upgrade')`.
-Python can ship `generate + schema` first and add `provenance` then `upgrades`
-later without breaking MCP/web.
 
-### 2.3 In core / not in core
+### 2.3 Deployment contracts
 
-**In core:** the protocol constant, `PackkitGenerator`/`ManifestDiffer` interfaces,
-types (`Diagnostic`, `GeneratedProject`, `PresetDescriptor`, `GeneratorSchema`,
-`ProjectDefinition`, `Baseline`, `ChangeClassification`, `DeploymentContract` incl.
-`Worker`), deterministic hashing, the **file** three-way diff, extension/collision
-rules, schema serialization, an **explicit-registration** generator registry, and
-the conformance suite.
+Every **deployable** preset emits a provider-neutral `DeploymentContract`.
+Non-deployable targets (libraries) emit a non-deployable contract. The union:
 
-**Not in core (per generator, behind `ManifestDiffer`):** `package.json`/
-`pyproject.toml` manipulation, npm/uv, bundlers, ESM/CJS, Vitest/Jest/ruff/pytest/
-mypy, framework/service templates, language naming rules, and all manifest
-semantics (npm `scripts`/`dependencies`/`exports` vs. Python `[project]`/
-optional-deps/entry-points).
+```text
+static | service | worker | library | cli | fullstack
+```
 
-### 2.4 Node/browser packaging boundaries (protects `packkit-web`)
+- **`service`** is language-neutral: `runtime: string` (`'node'`,
+  `'python-3.12'`, `'go-1.x'`). A Node, Python, or Go HTTP service emit the *same*
+  contract; a provider matches on shape, never language. (This is the generalized
+  form of what was once npm-flavored `node-service` — the last npm concept removed
+  from core.)
+- **`worker`** is likewise neutral — the same `WorkerDeploymentContract` is emitted
+  by `node-worker`, `py-worker`, and `go-worker`.
+- **`fullstack`** = `{ frontend: static, backend: service }`, produced by the
+  `composeFullstack` primitive (§2.6).
+
+### 2.4 In core / not in core
+
+**In core:** the protocol constant, `PackkitGenerator`/`ManifestDiffer`/
+`PackkitProvider` interfaces, contract types (`Diagnostic`, `GeneratedProject`,
+`PresetDescriptor`, `GeneratorSchema`, `ProjectDefinition`, `Baseline`,
+`ChangeClassification`, the `DeploymentContract` union), deterministic hashing, the
+**file** three-way diff, extension/collision rules, schema serialization, an
+**explicit-registration** generator registry, the `composeFullstack` primitive, and
+the conformance suites.
+
+**Not in core (per generator, behind `ManifestDiffer`):** `package.json` /
+`pyproject.toml` / `go.mod` manipulation, npm/uv/go tooling, bundlers, ESM/CJS,
+test runners, framework/service templates, language naming rules, and all manifest
+semantics.
+
+### 2.5 Node/browser packaging boundaries (protects `packkit-web`)
 
 Core is browser-safe **by default**; anything that needs Node lives behind a
 subpath export, so a browser bundle never transitively loads `node:*`.
 
 ```text
-@packkit/core          # browser-safe: types, protocol, hashing, diffing, registry
+@packkit/core          # browser-safe: types, protocol, hashing, diffing, registry, composeFullstack
 @packkit/core/node     # filesystem writer, anything importing node:fs/path/child_process
-@packkit/core/testing  # the conformance suite (dev-only)
+@packkit/core/testing  # the conformance suites (dev-only)
 ```
 
-**Phase-2 acceptance criterion:** importing `@packkit/core` must not transitively
-load `node:fs`, `node:path`, `child_process`, or any network client (asserted in CI).
+CI asserts the browser entry loads no `node:fs`, `node:path`, `child_process`, or
+network client.
 
-### 2.5 Stable identifiers & deprecation
+### 2.6 Fullstack composition (`composeFullstack`)
+
+A language-neutral primitive: given a **static** frontend `GeneratedProject` and a
+**service** backend `GeneratedProject`, it stitches them into `apps/web` +
+`apps/server`, rewrites each sub-contract root-relative, and emits a neutral
+`docker-compose`, a root README, and a `fullstack` deployment contract. Because it
+operates on plain `GeneratedProject` data, any static generator can supply the
+frontend and any service generator the backend — proven live in the web
+configurator (React + FastAPI, React + Go) and the MCP `compose_fullstack` tool.
+
+### 2.7 Stable identifiers & deprecation
 
 Generator IDs, preset IDs, and option IDs are **public persistent identifiers** —
 web/MCP/automation store `{ "generator": "python", "preset": "py-cli" }`. Once a
-generator hits 1.0, its IDs cannot be silently renamed or reused. Renames go
-through deprecation, carried in the descriptors:
-
-```ts
-interface PresetDescriptor { id: string; maturity: MaturityStatus; deprecated?: boolean; replacement?: string; /* … */ }
-interface GeneratorSchema { schemaVersion: number; generatorId: string; options: OptionDescriptor[]; }
-interface OptionDescriptor { id: string; /* stable key — UI labels/presentation change independently */ }
-```
+generator hits 1.0, its IDs cannot be silently renamed or reused; renames go
+through deprecation carried in the descriptors (`deprecated?`, `replacement?`).
 
 ## 3. Conformance suites — the executable definition of "Packkit"
 
-A shared GitHub Actions repo ensures every repo *runs* tests; the conformance
-suite defines *what those tests must prove*. Every generator runs the same one:
+Membership in the platform is proven by executable suites in
+`@packkit/core/testing`, not by a shared TypeScript interface alone.
+
+### 3.1 Generator conformance
 
 ```ts
 import { runGeneratorConformanceSuite } from '@packkit/core/testing';
 runGeneratorConformanceSuite(generator);
 ```
 
-It asserts universal behavior: unique generator ID · stable preset IDs · valid
-schema (no duplicate option IDs) · every preset generatable · deterministic output
-· every path safe · no file collisions · definition export/replay · digest
-stability · deployment contract validates · baseline round-trip · upgrade-planning
-semantics · diagnostics conform to schema · browser-safe **iff** the `browser`
-capability is advertised.
+Asserts universal behavior: unique generator ID · stable preset IDs · valid schema
+(no duplicate option IDs) · every preset generatable · deterministic output · every
+path safe · no file collisions · definition export/replay · digest stability ·
+deployment contract validates · baseline round-trip · upgrade-planning semantics ·
+diagnostics conform to schema · browser-safe **iff** the `browser` capability is
+advertised. All three generators (JS, Python, Go) pass it, plus the embedded
+lifecycle suite (`runEmbeddedLifecycleConformance`).
 
-A **provider** conformance suite mirrors it (added before provider #2): stable
-provider ID · deterministic `supports()` · unsupported contracts explain why ·
-serializable, schema-versioned plan · `apply` validates provider+plan · secrets
-never appear in state · partial results representable · serializable state ·
-provider never inspects generator-specific config.
+### 3.2 Provider conformance
 
-## 4. Module extraction map (create-packkit today → destination)
+```ts
+import { runProviderConformanceSuite } from '@packkit/core/testing';
+```
 
-| Current module | Destination | Notes |
-| --- | --- | --- |
-| `src/core/hash.js` (`contentHash`) | **core** (browser-safe) | universal |
-| `src/embedded/paths.js` (`validateRelativePath`) | **core** (browser-safe) | path safety |
-| `src/embedded/writer.js` (`writeGeneratedProject`) | **`@packkit/core/node`** | needs `node:fs` — NOT browser-safe core |
-| `src/embedded/contract.js` — **types** (`DeploymentContract` union) | **core** | add `WorkerContract` |
-| `src/embedded/contract.js` — `deriveDeploymentContract` | **create-packkit-js** | npm-specific |
-| `src/embedded/upgrade.js` — file three-way + diagnostics + baseline shape | **core** | universal |
-| `src/embedded/upgrade.js` + `pkg-merge.js` — package.json semantics | **create-packkit-js** | behind `ManifestDiffer` |
-| `src/core/provenance.js` — baseline/provenance **schema** | **core** | `buildBaseline` for package.json stays JS |
-| `src/core/render.js` (`toJson`) | **core** | deterministic JSON |
-| Diagnostics / `GeneratedProject` / `ProjectDefinition` / `PresetDescriptor` / `GeneratorSchema` types | **core** | contract types |
-| `src/core/options.js`, `presets.js`, `features/*`, `monorepo.js`, `pkg.js`, `node*.js`, `versions.js` | **create-packkit-js** | JS templates + options |
-| `src/cli/*` | **create-packkit-js** | JS CLI |
-| `mcp/*` | **packkit-mcp** | fronts all generators |
-| `docs/*` (configurator + bundled core) | **packkit-web** | renders any generator |
+A `PackkitProvider` advertises a stable `id` and its `capabilities`
+(`'plan'` / `'apply'`). The suite asserts: id non-empty · capabilities valid and
+include `plan` · `supports()` accepts a supported contract and rejects an
+unsupported one with a reason code · `supports()` is deterministic and tolerant of
+`undefined` · `plan()` carries `provider === id` and a numeric `schemaVersion ≥ 1` ·
+the plan is JSON round-trippable and deterministic · declared secrets never leak
+into the plan · `apply` is present **iff** the `apply` capability is advertised.
 
-## 5. Version & compatibility strategy
+Both providers pass it: **provider-netlify** (API-driven, `['plan','apply']` —
+apply runs through an injected client, so the package never holds credentials) and
+**provider-aws** (IaC-emitting, `['plan']` — it emits OpenTofu + a GitHub-OIDC
+deploy pipeline, no runtime apply, no credentials held).
 
-- **create-packkit → 4.0.0** because the **public embedded API intentionally
-  reshapes** to implement `PackkitGenerator` — *not* merely because code moved to
-  `@packkit/core`. Semver describes consumer impact. `npx create-packkit` and the
-  npm name never break.
-- **`@packkit/core` → 0.1.0** (new); `create-packkit-py` → 1.0.0 at lifecycle parity.
-- **Cross-repo compatibility matrix** (kept current in this doc + checked in CI where practical):
+## 4. Deployment providers
 
-  | Package | Protocol | `@packkit/core` | Maturity |
-  | --- | ---: | --- | --- |
-  | create-packkit(-js) | 1 | `^1` | stable |
-  | create-packkit-py | 1 | `^1` | stable |
-  | packkit-mcp | 1 | `^1` | stable |
-  | packkit-web | 1 | `^1` | stable |
-  | create-packkit-go | 1 | `^1` | experimental |
-  | provider-netlify | deployment-contract v1 | — | stable |
+A provider is `provider × DeploymentContract`, never `provider × language`. The
+same `static` contract from any generator produces the same infrastructure.
 
-- **Two compatibility gates, not one:**
-  - *Byte characterization* (Phase 1, done) proves refactors don't change output.
-  - *Semantic invariants* prove intentional evolution stays valid: every generated
-    JSON/TOML parses, every deployment contract + project definition validates,
-    every path is safe, preset/option IDs are unique, and
-    preset→config→definition→project round-trips. Snapshots catch accidents;
-    invariants protect evolution.
-- **provider-netlify** consumes the contract structurally (no import), so it keeps
-  working; compatibility is verified by tests, and expressed against the
-  **deployment-contract version**, not primarily against a create-packkit range.
+| Provider | Model | Capabilities | Archetypes |
+| --- | --- | --- | --- |
+| provider-netlify | API-driven (injected client) | `plan`, `apply` | `static` → Netlify site |
+| provider-aws | IaC-emitting (OpenTofu + GitHub OIDC pipeline) | `plan` | `static` → S3 + CloudFront (OAC) · `service` → App Runner · `worker` → ECS Fargate (no-NAT VPC) |
 
-### 5.1 Release notes & changelogs
+provider-aws is cost-conscious by construction (native S3 state locking, no
+DynamoDB; no NAT gateway; explicit log retention) and credential-free (OIDC; no
+runtime `apply`). All emitted IaC is `tofu validate`-clean in CI.
 
-Every ecosystem repo keeps a **hand-maintained `CHANGELOG.md`** starting now, in
-the [Keep a Changelog](https://keepachangelog.com) format: a top
-`## [Unreleased]` section, then released versions newest-first, using
-`Added / Changed / Fixed / Removed / Deprecated / Security` categories as needed.
-This is deliberately low-tech so migration progress is tracked from the first
-commit onward, before any release tooling is unified.
+## 5. Version & compatibility
 
-**Full [Changesets](https://github.com/changesets/changesets) automation is
-adopted later, in Phase 4 (`packkit-actions`)** — the reusable-CI phase, where
-release workflows get standardized across the org. Packages are already scaffolded
-with `@changesets/cli`, but the live release flow (create-packkit's custom
-`release.yml`) is not wired to `changeset version`/`changeset publish` yet, so that
-switch is deferred to avoid churn now. Until then, changelog entries are written by
-hand; Phase 4 flips them over to generated, per-package changelogs.
+Core is pre-1.0 (`0.x`), so a minor bump can carry additive contract changes. The
+ecosystem currently rides a **benign version split**: generators pin an older core
+minor (they only need the stable contract types + generator conformance, which are
+additively compatible), while surfaces and providers pin the minors that introduced
+the APIs they use (`composeFullstack` in 0.5.0, the provider contract in 0.6.0).
+This is safe precisely because the new primitives operate on plain data.
 
-## 6. Phased backlog
+**Current compatibility matrix** (published versions):
 
-### Phase 0 — Plan & backlog ✅
-- [x] Migration plan, extraction map, version strategy, phased backlog
-- [x] Tracking milestone + phase issues (#49–#58)
+| Package | Version | Protocol | `@packkit/core` | Maturity |
+| --- | ---: | ---: | --- | --- |
+| create-packkit (repo `create-packkit-js`) | 4.3.3 | 1 | `^0.4.0` | stable |
+| create-packkit-py | 2.2.0 | 1 | `^0.4.0` | stable |
+| create-packkit-go | 0.3.3 | 1 | `^0.4.0` | experimental |
+| packkit-mcp | 1.2.0 | 1 | `^0.5.0` | stable |
+| packkit-web | 0.1.0 | 1 | `^0.5.0` | stable |
+| @packkit/provider-netlify | 0.2.0 | deployment-contract v1 | `^0.6.0` (peer) | stable |
+| @packkit/provider-aws | 0.2.0 | deployment-contract v1 | `^0.6.0` (peer) | preview |
+| @packkit/core | 0.6.0 | 1 | — | stable |
 
-### Phase 1 — Characterization safety net ✅ (byte) / ▶ (semantic)
-- [x] Byte-parity snapshots of all `create-packkit` presets (#49)
-- [x] Byte-parity snapshots of all `create-packkit-py` presets
-- [ ] **Semantic invariant tests** in both repos (JSON/TOML parse, contract +
-      definition validation, path safety, unique IDs, round-trip) — Addition 6
+**Two compatibility gates, not one:**
+- *Byte characterization* proves refactors don't change output (snapshots).
+- *Semantic invariants* prove intentional evolution stays valid: every generated
+  JSON/TOML/`go.mod` parses, every deployment contract + project definition
+  validates, every path is safe, preset/option IDs are unique, and
+  preset → config → definition → project round-trips.
 
-### Phase 2 — `packkit-core`: protocol, primitives, conformance ✅
-- [x] New repo/package `@packkit/core` with browser/node/testing subpaths
-      (shipped 0.1.0; now 0.1.2 — OIDC trusted publishing live)
-- [x] `PACKKIT_PROTOCOL_VERSION`, `PackkitGenerator` (+ capabilities/maturity),
-      `ManifestDiffer`, deployment contracts (+ `Worker`), stable-ID/deprecation types
-- [x] Universal primitives: hashing, file three-way diff, `toJson`, diagnostics,
-      path-safety; **writer under `@packkit/core/node`**
-- [x] `runGeneratorConformanceSuite` in `@packkit/core/testing`
-- [x] `create-packkit` depends on core, implements `PackkitGenerator` (pkg semantics
-      behind its `ManifestDiffer`), passes the conformance suite → **4.0.0**
-- **Acceptance:** Phase-1 snapshots byte-identical; browser entry loads no `node:*`;
-      `npx create-packkit` unchanged; provider-netlify green; conformance suite passes.
+**Releases** use Changesets automation (`changesets/action`, Version PR →
+`changeset publish`) with tokenless OIDC + provenance; the final `npm publish`
+stays local to each repo per supply-chain policy. `create-packkit` publishes via
+`NPM_TOKEN`; the other packages use npm **OIDC Trusted Publishers**.
 
-### Phase 3 — Python lifecycle parity ✅
-- [x] `create-packkit-py` implements `PackkitGenerator` on `@packkit/core`, passes
-      the conformance suite: embedded API, schema, definitions/provenance,
-      baseline-aware upgrade (pyproject `ManifestDiffer`), deployment contract → 1.0.0
+## 6. The org invariant & new-language onboarding
 
-### Phase 4 — `packkit-actions` (shared CI, moved ahead of mcp/web) ✅
-- [x] Reusable `workflow_call` workflows: `generator-ci`, `generator-integration`,
-      `security`, `dependency-freshness` shipped (`packkit-actions` v1.2.0, moving `v1`
-      tag). `npm-release` intentionally NOT shared — publishing stays local per
-      supply-chain policy. `generated-project-validation` folded into `generator-integration`.
-- [x] Standard generator npm scripts `check` + `test:integration` + `check:freshness`
-      (create-packkit-py is the reference: scaffold each preset → uv + pytest/ruff/mypy;
-      freshness reads emitted deps from generated pyproject → PyPI). Shared YAML
-      invokes scripts, never encodes language commands.
-- [x] **Version policy:** consumers pin `@v1`; third-party actions (setup-uv,
-      changesets/action) SHA-pinned. core + py adopted; create-packkit took `security@v1`.
-- [x] Weekly `dependency-freshness` as an org invariant — reusable workflow manages a
-      single tracking issue. Reference impl caught pytest/mypy a major behind → bumped
-      the emitted floors current (integration-verified); ran live, green, no false issue.
-- [x] OIDC trusted publishing for all packages; final `npm publish` stays local.
-- [x] **Changesets automation** — release workflows use `changesets/action@v1.9.0`
-      (Version PR → `changeset publish`), tokenless OIDC + provenance, publish in-repo.
-      Proven end-to-end: shipped `create-packkit-py@1.0.2` and `@packkit/core@0.1.3`.
-
-### Phase 5 — Extract `packkit-mcp` ✅
-- [x] Own repo (`PackkitLabs/packkit-mcp`); registers both generators via
-      `@packkit/core`'s registry and drives them purely through the protocol; tools
-      `list_generators`/`list_presets` (experimental hidden)/`get_generator_schema`/
-      `generate_project` (preview or write)/`plan_upgrade`; JS + Python in v1.
-      Shipped **`packkit-mcp@1.0.0`** (breaking: the old JS-only `packkit_*` tools are
-      replaced) — tokenless OIDC npm publish + provenance, and the official-registry
-      entry `io.github.PackkitLabs/packkit-mcp@1.0.0` now points at the new repo. The
-      `mcp/` subfolder and its release machinery were removed from create-packkit.
-- **Manual follow-ups (Dan):** Glama admin → Build & Release to re-point the listing
-      at `PackkitLabs/packkit-mcp` (see RELEASING.md for the known-good config), and
-      update the awesome-mcp-servers entry's Glama score-badge URL to the new repo.
-
-### Phase 6 — Extract `packkit-web` ✅
-- [x] Own repo (`PackkitLabs/packkit-web`); one UI renders any generator's schema via a
-      per-generator adapter + language picker; **JS + Python** generate + ZIP + share
-      links, all client-side (esbuild bundle of the browser-safe cores + JSZip).
-      CI green (shared `generator-ci@v1` runs build + an adapter smoke).
-- [x] **Live on Cloudflare Pages: https://packkit-web.pages.dev/** (verified in-browser
-      for both generators). Chosen over GitHub Pages so a future "create + push to a
-      GitHub repo" feature drops into the reserved `functions/` seam (OAuth token
-      exchange needs a backend a static site can't hold) with no re-platforming.
-- [x] **Single clean Pages move done:** retired the old `create-packkit/docs`
-      configurator → it now redirects to the new URL (GitHub Pages stays up for
-      `llms.txt` + old links); dropped `build:web` + the bundle-fresh CI job.
-
-### Phase 7 — Worker target (#44) as cross-language validation ✅
-- [x] `node-worker` (`create-packkit@4.2.0`) + `py-worker` (`create-packkit-py@2.1.0`)
-      on the shared `WorkerDeploymentContract` — **zero core changes**, proving the
-      contract is truly universal. Each emits a unit-testable `handle()` seam, a
-      runner that drains in-flight work on SIGTERM/SIGINT and **exits 0**, structured
-      JSON stdout logs, a poison-message seam (bounded retries), env config, a
-      `python -m` / `node dist/index.js` entry, and a Dockerfile with **no
-      EXPOSE/HTTP healthcheck** (`STOPSIGNAL SIGTERM`). No transport SDK — a `receive()`
-      seam is wired to a stdin demo source. Each generator's own test proves the
-      SIGTERM drain exits 0, and both integration matrices run the worker in CI. Closes #44.
-
-### Phase 8 — Go generator spike (`create-packkit-go`)
-- [x] **Slice 1 — `go-lib` (shipped repo, ✅ zero core changes).**
-      [`create-packkit-go`](https://github.com/PackkitLabs/create-packkit-go) is a JS
-      generator whose output is an idiomatic Go project (a `go.mod` module, a
-      documented package, a table test). `goGenerator` passes BOTH
-      `runGeneratorConformanceSuite` and `runEmbeddedLifecycleConformance` — the same
-      suites JS/Python pass — with **no `@packkit/core` change**. Go-specific `go.mod`
-      semantics live in `goModDiffer` (never in core). Generated `go-lib` is
-      gofmt-clean and passes `go vet`/`go build`/`go test`, proven end-to-end in CI
-      (`scripts/integration.mjs` + a new `setup-go` path in
-      `packkit-actions@v1.3.0`'s `generator-integration`). **Published `0.1.0` on npm**
-      (first publish manual to seat the Trusted Publisher; releases now tokenless).
-- [x] **Slice 2 — `go-cli` (✅ zero core changes).** Keeps the testable library package
-      at the module root and adds a thin `cmd/<name>/main.go` (flag + positional →
-      delegates to the package; logic stays unit-tested, `main` stays minimal). Emits a
-      `cli` contract. CI builds and runs the binary end-to-end (greets).
-- [x] **Slice 3 — `go-worker` (✅ zero core changes) — cross-language worker proof #3.**
-      Emits the SAME provider-neutral `WorkerDeploymentContract` the JS (`node-worker`)
-      and Python (`py-worker`) generators emit: a unit-testable `Handle` seam, bounded
-      retries + poison hook, JSON stdout logs, and a **context-driven drain that exits 0
-      on SIGTERM/SIGINT** (channel-fed reader + `select` — no blocking read that hangs a
-      shutdown, the Go-idiomatic analog of Python's `select`/Node's `readline` poll),
-      `cmd/` entry via `signal.NotifyContext`, distroless multi-stage `Dockerfile` (no
-      EXPOSE, `STOPSIGNAL SIGTERM`). The generated worker's own test builds the binary,
-      SIGTERMs it, and asserts drain + exit 0 — run in the real-Go CI matrix. Proof the
-      worker archetype lives in core, not in a language. (Version PR → `0.2.0`.)
-- [x] **Slice 4 — `go-service` (HTTP) — surfaced the one permitted core change.** A
-      `net/http` server (`NewHandler` router seam serving `/` + `/healthz`, `Run` binding
-      `$PORT`, JSON logs, graceful `http.Server.Shutdown` drain on SIGTERM/SIGINT), a
-      `cmd/` entry, and a distroless `Dockerfile`. As anticipated, it forced **the single
-      legitimate core generalization**: `@packkit/core@0.4.0` renamed the npm-flavored
-      `node-service` deployment type (`type:'node-service'`, `runtime:'node'`) to the
-      language-neutral **`service`** (`type:'service'`, `runtime:string`) — mirroring the
-      already-neutral `worker` contract. A Node, Python, or Go HTTP service now emit the
-      *same* contract with `runtime` `'node'`/`'python-3.12'`/`'go-1.x'`; a provider
-      matches on shape, never language. This was the **last npm concept in core** — the
-      Go spike's whole justification. Generated `go-service` is gofmt-clean and passes
-      `go vet`/`build`/`test` including an `httptest` handler test and a live-server boot
-      + `/healthz` + graceful-shutdown test; CI runs all four presets. (`0.3.1`.)
-
-**Phase 8 COMPLETE — Go is a first-class language, cascade shipped.** The `node-service`
-→ `service` generalization rippled cleanly across the ecosystem (Dan: "no real users,
-don't worry about churn"), all realigned to **`@packkit/core@0.4.0`** with **no split
-core**: `create-packkit@4.3.0` (emits `type:'service'` `runtime:'node'`; `node-service`
-*preset* name unchanged — it's a Node scaffold), `create-packkit-py@2.1.1`,
-`create-packkit-go@0.3.1`, `@packkit/provider-netlify@0.1.3`. **`packkit-mcp@1.1.0`**
-registers the Go generator → the server now fronts **JavaScript + Python + Go** (smoke
-generates a Go `service` project through the protocol; experimental presets gated).
-**`packkit-web`** gained a Go adapter → the configurator offers all three languages
-(`go-lib`/`go-cli`/`go-worker`/`go-service`), verified in-browser. Only the org/repo
-renames (Phases 9–10) remain.
-
-### Phase 9 — Repo rename + full doc/URL audit ✅ DONE
-- [x] **Renamed `PackkitLabs/create-packkit` → `PackkitLabs/create-packkit-js`** (GitHub keeps
-      redirects for the repo URL). The **npm package name and CLI stay `create-packkit`** —
-      `npx create-packkit` is unchanged. Audited & updated every reference: the GitHub
-      **Pages URL** `packkitlabs.github.io/create-packkit` → `/create-packkit-js` (Pages
-      project URLs do **not** auto-redirect, so this mattered — including the `$schema`
-      URL emitted into every generated `packkit.json`, snapshots regenerated); package
-      metadata (repository/bugs), README badges, `llms.txt`, monorepo/meta scaffold links;
-      cross-repo links in `packkit-mcp`, `packkit-web` (adapter `repoUrl` + README),
-      `packkit-core`/`provider-netlify` own `packkit.json`; and the org `.github` profile.
-      Pages verified live at `packkitlabs.github.io/create-packkit-js/`; publishing
-      unaffected (create-packkit uses `NPM_TOKEN`, not a repo-tied OIDC trusted publisher).
-      **Note:** the local working copy dir is still `create-packkit/` (cosmetic; remote is
-      `create-packkit-js`). `philatelyos-architecture` refs left as-is (separate project,
-      GitHub redirect covers them).
-
-### Phase 10 — Org rename (finale 😅) ✅ CODE SWEEP DONE
-- [x] **Org renamed `PackkitJS` → `PackkitLabs`** (Dan; GitHub redirects all repo URLs
-      + `uses:` refs). Full code sweep shipped across all 8 repos: every `PackkitJS`
-      reference and the `packkitjs.github.io` → `packkitlabs.github.io` Pages subdomain
-      (URLs, badges, workflow `uses:`, repo metadata, MCP registry id
-      `io.github.PackkitLabs/packkit-mcp`, web adapter `repoUrl`s, and the emitted
-      `$schema` in all three generators' output — snapshots regenerated). CI green
-      everywhere; `packkit-web` (CF) + `packkitlabs.github.io/create-packkit-js/` both
-      live. The `@packkit` npm scope and all package names/CLIs are unchanged.
-- [ ] **Remaining (Dan — account-level):** reconfigure the npm **OIDC Trusted
-      Publishers** for the 5 OIDC packages (`@packkit/core`, `create-packkit-py`,
-      `create-packkit-go`, `@packkit/provider-netlify`, `packkit-mcp`) from
-      `PackkitJS/<repo>` → `PackkitLabs/<repo>` — until then their next OIDC publish
-      would 403. (`create-packkit` publishes via `NPM_TOKEN`, unaffected.) Then optional
-      follow-up releases republish the `packkitlabs.github.io` schema URL into generated
-      output + the MCP registry entry under the new namespace (low-urgency, cosmetic).
-
-## 7. Deferred / out of scope
-
-- **Dynamic/community generator plugins** — the registry is **explicit-registration
-  only** for now (`registry.register(jsGenerator)`). No npm scanning, dynamic
-  download, or arbitrary plugin execution until a trust model exists (signing,
-  compatibility, sandboxing, permission declarations, discovery).
-- **#45 Terraform/OpenTofu — RESOLVED via `@packkit/provider-aws` (Shape 2), shipped.**
-  [`PackkitLabs/provider-aws`](https://github.com/PackkitLabs/provider-aws) reads a
-  project's `deploymentContract` and emits OpenTofu + a GitHub-OIDC deploy pipeline, so
-  one AWS provider deploys a Node/Python/Go project from the same code path (the payoff
-  of the `service` generalization). Three archetypes: `static`→S3+CloudFront (OAC),
-  `service`→App Runner, `worker`→ECS Fargate (no-NAT VPC). Cost-conscious by construction
-  (no DynamoDB — native S3 locking; no NAT gateway; explicit log retention) and
-  credential-free (OIDC, no runtime `apply`). All `tofu validate`-clean in CI. The
-  standalone-IaC-generator shape (a from-scratch `philatelyos-infra` repo) is explicitly
-  **not** covered by a provider and remains a separate future question if it ever pulls.
-- **#70 Polyglot contract packages** (one repo → npm **and** PyPI from one tag; a
-  JS-package-and-Python-package with a language-neutral schema source of truth).
-  **Decided shape: Shape 2 — a reusable release capability in `packkit-actions`
-  (dual-registry OIDC + version-sync check + partial-publish recovery + optional
-  codegen-drift gate), NOT a generator/core change.** Deferred (non-blocking); does
-  not touch the generator↔language 1:1:1 model, so it never influences the protocol
-  or new-language work. Partial-publish recovery = publish PyPI first (recoverable),
-  gate npm (immutable) on its success. Leave #70 open.
-- **Python tool matrix** (Poetry/PDM/Flit, black/isort/pyright, tox/nox, Django/
-  FastAPI/Flask) — only after Python reaches lifecycle parity (Phase 3).
-
-## 8. Risks & mitigations
-
-| Risk | Mitigation |
-| --- | --- |
-| Breaking `create-packkit`'s output during extraction | Phase-1 byte-parity snapshots gate every move |
-| npm concepts leaking into core | `ManifestDiffer` seam; conformance suite; Go spike (Phase 8) as proof |
-| Node modules pulled into the browser bundle | `@packkit/core` browser-safe by default; writer under `/node`; CI asserts no `node:*` |
-| Independently versioned repos drifting apart | Protocol version + capability negotiation + compatibility matrix |
-| Pages churn | Deferred to a single move in Phase 6 (packkit-web) |
-| provider-netlify coupling | Structural contract (no import); compatibility verified by tests against deployment-contract v1 |
-| Reusable-workflow trusted publishing quirk | Keep the `npm publish` job local to each repo; pin `@v1` |
-
-## 9. The org invariant & new-language onboarding
-
-> **Every *deployable* preset emits a provider-neutral deployment contract**
-> (non-deployable targets such as libraries emit a `library`/non-deployable
-> contract). **Providers determine support exclusively from the contract**, never
-> from generator identity or language. A generator is "Packkit-compatible" only if
-> it implements `PackkitGenerator`, **passes the conformance suite**, and its
+> **Every *deployable* preset emits a provider-neutral deployment contract.**
+> **Providers determine support exclusively from the contract**, never from
+> generator identity or language. A generator is "Packkit-compatible" only if it
+> implements `PackkitGenerator`, **passes the conformance suite**, and its
 > generated projects are continuously validated against their declared
 > runtime/toolchain matrix.
 
-Adding a language is then an operational checklist, not an architecture project:
+Adding a language is an operational checklist, not an architecture project:
 
 ```text
 □ PackkitGenerator implementation + stable generator ID
@@ -451,3 +266,18 @@ Adding a language is then an operational checklist, not an architecture project:
 □ passes runGeneratorConformanceSuite
 □ documentation
 ```
+
+## 7. Deferred / out of scope
+
+- **Dynamic/community generator plugins** — the registry is **explicit-registration
+  only** (`registry.register(jsGenerator)`). No npm scanning, dynamic download, or
+  arbitrary plugin execution until a trust model exists (signing, compatibility,
+  sandboxing, permission declarations, discovery).
+- **Standalone from-scratch IaC generator** (a `philatelyos-infra`-style repo) is
+  explicitly **not** a provider concern and remains a separate future question.
+- **Polyglot contract packages (#70)** — one repo publishing to npm **and** PyPI
+  from one tag. Decided shape: a reusable release capability in `packkit-actions`
+  (dual-registry OIDC + version-sync + partial-publish recovery), **not** a
+  generator/core change. Deferred; does not touch the 1:1:1 generator↔language model.
+- **`packkit-e2e`** — a released-version ecosystem harness running cross-repo E2E
+  journeys against published packages. Under consideration.
