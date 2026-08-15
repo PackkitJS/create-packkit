@@ -393,18 +393,16 @@ renames (Phases 9–10) remain.
   only** for now (`registry.register(jsGenerator)`). No npm scanning, dynamic
   download, or arbitrary plugin execution until a trust model exists (signing,
   compatibility, sandboxing, permission declarations, discovery).
-- **#45 Terraform/OpenTofu** — not in create-packkit-js. **Precondition now met** (the
-  contract is proven across JS/Python/Go, Phase 8). **Reframed recommendation: pursue
-  `@packkit/provider-aws` (Shape 2), NOT a standalone `create-packkit-tofu` generator.**
-  A provider reads a project's `deploymentContract` and emits the IaC to deploy *that*
-  project — so one AWS provider deploys a Node/Python/Go `service` from the same code
-  path (the payoff of the `service` generalization). A standalone IaC generator instead
-  hits a modeling inversion (IaC *is* the deployment → its own `deploymentContract` is
-  meaningless) and competes with `terraform-aws-modules`/Terragrunt. Contract→primitive
-  map: `static`→S3+CloudFront, `service`→Fargate/App Runner+ALB, `worker`→ECS/Lambda+SQS.
-  Kept open as the next **optional** initiative (a security-sensitive domain — IAM/OIDC/
-  state — to do deliberately, not reflexively). Caveat: a standalone infra repo like
-  `philatelyos-infra` is the generator shape, which a provider does not cover.
+- **#45 Terraform/OpenTofu — RESOLVED via `@packkit/provider-aws` (Shape 2), shipped.**
+  [`PackkitLabs/provider-aws`](https://github.com/PackkitLabs/provider-aws) reads a
+  project's `deploymentContract` and emits OpenTofu + a GitHub-OIDC deploy pipeline, so
+  one AWS provider deploys a Node/Python/Go project from the same code path (the payoff
+  of the `service` generalization). Three archetypes: `static`→S3+CloudFront (OAC),
+  `service`→App Runner, `worker`→ECS Fargate (no-NAT VPC). Cost-conscious by construction
+  (no DynamoDB — native S3 locking; no NAT gateway; explicit log retention) and
+  credential-free (OIDC, no runtime `apply`). All `tofu validate`-clean in CI. The
+  standalone-IaC-generator shape (a from-scratch `philatelyos-infra` repo) is explicitly
+  **not** covered by a provider and remains a separate future question if it ever pulls.
 - **#70 Polyglot contract packages** (one repo → npm **and** PyPI from one tag; a
   JS-package-and-Python-package with a language-neutral schema source of truth).
   **Decided shape: Shape 2 — a reusable release capability in `packkit-actions`
