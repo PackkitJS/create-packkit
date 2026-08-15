@@ -533,7 +533,7 @@ function fullstackReadme(cfg, pm, shared) {
   return [
     `# ${cfg.name}`,
     '',
-    cfg.description || '_A full-stack monorepo scaffolded with [Packkit](https://packkitlabs.github.io/create-packkit-js/)._',
+    cfg.description || '_A full-stack monorepo scaffolded with [Packkit](https://packkit-web.pages.dev/)._',
     '',
     '## Layout',
     '',
@@ -675,7 +675,7 @@ function rootReadme(cfg, pm, core, utils) {
   return [
     `# ${cfg.name}`,
     '',
-    cfg.description || '_A monorepo scaffolded with [Packkit](https://packkitlabs.github.io/create-packkit-js/)._',
+    cfg.description || '_A monorepo scaffolded with [Packkit](https://packkit-web.pages.dev/)._',
     '',
     '## Packages',
     '',

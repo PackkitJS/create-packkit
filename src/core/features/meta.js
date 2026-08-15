@@ -110,7 +110,7 @@ function readme(cfg) {
   const lines = [
     `# ${cfg.name}`,
     '',
-    cfg.description || '_A modern package scaffolded with [Packkit](https://packkitlabs.github.io/create-packkit-js/)._',
+    cfg.description || '_A modern package scaffolded with [Packkit](https://packkit-web.pages.dev/)._',
     '',
   ];
 
