@@ -145,6 +145,24 @@ function readme(cfg) {
     lines.push('## CLI', '', '```sh', `npx ${cfg.name} --help`, '```', '');
   }
 
+  // First-push friction: a brand-new repo has no lockfile yet, so CI's `npm ci` fails
+  // immediately — and if it was created from the web (no local install), there's been no
+  // chance to make one. Say it where someone will actually read it, not just a log.
+  if (cfg.workflows?.includes('ci')) {
+    lines.push(
+      '## Continuous integration',
+      '',
+      'The `CI` workflow runs typecheck, lint, tests, and build on every push. It uses `npm ci`, which needs a committed lockfile — so after creating the repo, run `npm install` and commit the generated `package-lock.json`. Until then CI fails with _"Dependencies lock file is not found"_ (expected on a brand-new repo).',
+      '',
+    );
+    if (cfg.workflows.includes('pages')) {
+      lines.push(
+        'The Pages deploy needs Pages enabled first: **Settings → Pages → Source: GitHub Actions**. Until then it fails with _"Get Pages site failed"_ (also expected).',
+        '',
+      );
+    }
+  }
+
   // Publishing needs a credential the repo doesn't have yet. The changesets
   // workflow runs on every push, so without this note the first thing a new
   // repo does is fail a job for a reason that's only explained in a YAML

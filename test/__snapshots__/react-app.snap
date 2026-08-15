@@ -255,6 +255,10 @@ npm run dev     # start the dev server
 npm run build   # production build
 ```
 
+## Continuous integration
+
+The `CI` workflow runs typecheck, lint, tests, and build on every push. It uses `npm ci`, which needs a committed lockfile — so after creating the repo, run `npm install` and commit the generated `package-lock.json`. Until then CI fails with _"Dependencies lock file is not found"_ (expected on a brand-new repo).
+
 ## License
 
 MIT © Fixture Author <fixture@example.com>
@@ -438,7 +442,7 @@ export default tseslint.config(
         "hash": "199a668c7eefba"
       },
       "README.md": {
-        "hash": "1db2834cd9fe13"
+        "hash": "173de49d1c9953"
       },
       "SECURITY.md": {
         "hash": "1fc69ca4db19fc"

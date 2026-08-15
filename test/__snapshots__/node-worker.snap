@@ -290,6 +290,10 @@ Node.js >= 24.0.0 (`.nvmrc` pins 24.18.0; run `nvm use`). Enforced via `engine-s
 npm install fixture
 ```
 
+## Continuous integration
+
+The `CI` workflow runs typecheck, lint, tests, and build on every push. It uses `npm ci`, which needs a committed lockfile — so after creating the repo, run `npm install` and commit the generated `package-lock.json`. Until then CI fails with _"Dependencies lock file is not found"_ (expected on a brand-new repo).
+
 ## License
 
 MIT © Fixture Author <fixture@example.com>
@@ -470,7 +474,7 @@ export default tseslint.config(
         "hash": "199a668c7eefba"
       },
       "README.md": {
-        "hash": "07cac6e7960fa9"
+        "hash": "0b59d6efbafeda"
       },
       "SECURITY.md": {
         "hash": "1fc69ca4db19fc"

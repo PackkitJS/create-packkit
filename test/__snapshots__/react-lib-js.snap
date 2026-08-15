@@ -300,6 +300,10 @@ import { Button } from 'fixture';
 <Button label="Click me" />
 ```
 
+## Continuous integration
+
+The `CI` workflow runs typecheck, lint, tests, and build on every push. It uses `npm ci`, which needs a committed lockfile — so after creating the repo, run `npm install` and commit the generated `package-lock.json`. Until then CI fails with _"Dependencies lock file is not found"_ (expected on a brand-new repo).
+
 ## Releasing
 
 Releases are handled by the `Release` workflow: push a changeset (`npx changeset`) and it opens a version PR, then publishes when that PR merges.
@@ -491,7 +495,7 @@ export default [
         "hash": "199a668c7eefba"
       },
       "README.md": {
-        "hash": "0f538dd1cfedf8"
+        "hash": "1334eeff7aa433"
       },
       "SECURITY.md": {
         "hash": "1fc69ca4db19fc"

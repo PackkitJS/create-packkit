@@ -375,6 +375,12 @@ greet('world'); // "Hello, world!"
 npx fixture --help
 ```
 
+## Continuous integration
+
+The `CI` workflow runs typecheck, lint, tests, and build on every push. It uses `npm ci`, which needs a committed lockfile — so after creating the repo, run `npm install` and commit the generated `package-lock.json`. Until then CI fails with _"Dependencies lock file is not found"_ (expected on a brand-new repo).
+
+The Pages deploy needs Pages enabled first: **Settings → Pages → Source: GitHub Actions**. Until then it fails with _"Get Pages site failed"_ (also expected).
+
 ## Releasing
 
 Releases are handled by the `Release` workflow: push a changeset (`npx changeset`) and it opens a version PR, then publishes when that PR merges.
@@ -587,7 +593,7 @@ export default tseslint.config(
         "hash": "199a668c7eefba"
       },
       "README.md": {
-        "hash": "1355cef93c3c0f"
+        "hash": "0c12a783077218"
       },
       "SECURITY.md": {
         "hash": "1fc69ca4db19fc"

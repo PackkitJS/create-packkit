@@ -115,6 +115,10 @@ import { greet } from 'fixture';
 greet('world'); // "Hello, world!"
 ```
 
+## Continuous integration
+
+The `CI` workflow runs typecheck, lint, tests, and build on every push. It uses `npm ci`, which needs a committed lockfile — so after creating the repo, run `npm install` and commit the generated `package-lock.json`. Until then CI fails with _"Dependencies lock file is not found"_ (expected on a brand-new repo).
+
 ## License
 
 MIT © Fixture Author <fixture@example.com>
@@ -212,7 +216,7 @@ MIT © Fixture Author <fixture@example.com>
         "hash": "199a668c7eefba"
       },
       "README.md": {
-        "hash": "1217ab4e7617cf"
+        "hash": "1ff604ac598aa8"
       },
       "package.json": {
         "hash": "0d92754ef0e4ed"
