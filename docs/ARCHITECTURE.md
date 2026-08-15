@@ -7,9 +7,17 @@ configurator) drive any generator through the protocol; deployment providers act
 on the neutral **deployment contract**, never on a generator or a language. A
 host integrates once and drives JavaScript, Python, or Go by id.
 
-This document describes the platform **as it stands today**. The phase-by-phase
-story of how it got here lives in
-[`history/PLATFORM-MIGRATION.md`](./history/PLATFORM-MIGRATION.md).
+**Status: the platform-migration milestone is complete.** All three generators, the
+universal embedding API, Web, MCP, shared CI, the provider contract, both providers
+(Netlify + AWS), the worker contract, and cross-language fullstack composition have
+shipped. The posture is now **operate and adopt**, not "finish the architecture" — the
+roadmap is deliberately small (see [§8](#8-roadmap)).
+
+This document describes the platform **as it stands today** and is meant to **age
+slowly**: it carries the current protocol, architecture, contracts, and compatibility
+*policy*, but not fast-moving published version numbers (those are asserted automatically
+— see [§5](#5-version--compatibility)). The phase-by-phase story of how it got here lives
+in [`history/PLATFORM-MIGRATION.md`](./history/PLATFORM-MIGRATION.md).
 
 Guiding rule that still governs every change: **contract-first, not mechanical
 extraction.** Only genuinely language-neutral concepts belong in core. The Go
@@ -210,25 +218,31 @@ runtime `apply`). All emitted IaC is `tofu validate`-clean in CI.
 
 ## 5. Version & compatibility
 
-Core is pre-1.0 (`0.x`), so a minor bump can carry additive contract changes. The
-ecosystem currently rides a **benign version split**: generators pin an older core
-minor (they only need the stable contract types + generator conformance, which are
-additively compatible), while surfaces and providers pin the minors that introduced
-the APIs they use (`composeFullstack` in 0.5.0, the provider contract in 0.6.0).
-This is safe precisely because the new primitives operate on plain data.
+Core is pre-1.0 (`0.x`), so a minor bump can carry additive contract changes, and the
+ecosystem deliberately rides a **benign version split**: generators and surfaces pin an
+older core minor than the providers, because they only use additively-stable
+contract/protocol types (the newer primitives — `composeFullstack`, the provider contract
+— operate on plain data). This is a policy, not an accident.
 
-**Current compatibility matrix** (published versions):
+**Compatibility policy** (protocol + core range + maturity — the parts that age slowly):
 
-| Package | Version | Protocol | `@packkit/core` | Maturity |
-| --- | ---: | ---: | --- | --- |
-| create-packkit (repo `create-packkit-js`) | 4.3.3 | 1 | `^0.4.0` | stable |
-| create-packkit-py | 2.2.0 | 1 | `^0.4.0` | stable |
-| create-packkit-go | 0.3.3 | 1 | `^0.4.0` | experimental |
-| packkit-mcp | 1.2.0 | 1 | `^0.5.0` | stable |
-| packkit-web | 0.1.0 | 1 | `^0.5.0` | stable |
-| @packkit/provider-netlify | 0.2.0 | deployment-contract v1 | `^0.6.0` (peer) | stable |
-| @packkit/provider-aws | 0.2.0 | deployment-contract v1 | `^0.6.0` (peer) | preview |
-| @packkit/core | 0.6.0 | 1 | — | stable |
+| Package | Protocol | `@packkit/core` | Maturity |
+| --- | ---: | --- | --- |
+| create-packkit (repo `create-packkit-js`) | 1 | trails core (benign split) | stable |
+| create-packkit-py | 1 | trails core (benign split) | stable |
+| create-packkit-go | 1 | trails core (benign split) | experimental |
+| packkit-mcp | 1 | trails core (benign split) | stable |
+| packkit-web | 1 | trails core (benign split) | stable |
+| @packkit/provider-netlify | deployment-contract v1 | tracks current core (peer) | stable |
+| @packkit/provider-aws | deployment-contract v1 | tracks current core (peer) | preview |
+| @packkit/core | 1 | — | stable |
+
+The split is **enforced, not merely documented**. Its single source of truth is
+[`packkit-actions/compatibility.json`](https://github.com/PackkitLabs/packkit-actions/blob/main/compatibility.json);
+two automated checks assert it so it can never silently rot: **ecosystem-compatibility**
+(source level — each repo's main manifest against core's main) and **packkit-e2e J6**
+(published level — every published package resolves to a real published core). For the
+exact current versions, see npm or those checks — not this document.
 
 **Two compatibility gates, not one:**
 - *Byte characterization* proves refactors don't change output (snapshots).
@@ -279,5 +293,35 @@ Adding a language is an operational checklist, not an architecture project:
   from one tag. Decided shape: a reusable release capability in `packkit-actions`
   (dual-registry OIDC + version-sync + partial-publish recovery), **not** a
   generator/core change. Deferred; does not touch the 1:1:1 generator↔language model.
-- **`packkit-e2e`** — a released-version ecosystem harness running cross-repo E2E
-  journeys against published packages. Under consideration.
+- **New languages / providers / registries** (Rust, PHP, Java; Azure, GCP, Vercel,
+  Cloudflare; more): **not** roadmap items by default. The architecture is frozen; more
+  surface area would grow the README without making the platform better. Add one only
+  when a concrete user or use-case demands it.
+
+## 8. Roadmap
+
+The platform-migration milestone is **complete** — closed, not "mostly complete." What
+remains is operation and adoption, and it is deliberately small:
+
+```text
+PLATFORM MIGRATION ............ ✅ COMPLETE
+  JS · Python · Go generators . ✅
+  universal embedding API ..... ✅
+  Web · MCP · shared CI ........ ✅
+  provider contract ........... ✅
+  Netlify · AWS providers ..... ✅
+  worker contract ............. ✅
+  cross-language fullstack .... ✅
+
+NEXT (usage-driven, not architecture)
+  real-world adoption ......... internal developer platform is the key next consumer:
+                                a host that does registry.get(language) → packkit.generate
+                                → project.deploymentContract without caring which language
+  operational hardening ....... packkit-e2e (released-version E2E) + ecosystem-compatibility
+                                (both shipped — now let the nightlies/weeklies accrue signal)
+  provider maturity ........... driven by actual deployment use, not speculative breadth
+```
+
+The guiding rule for the next phase inverts the last one: **resist extraction and new
+surface**. Prove the promise the architecture now makes in a real host before adding
+anything.
