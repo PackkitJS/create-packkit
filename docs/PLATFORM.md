@@ -393,9 +393,18 @@ renames (Phases 9–10) remain.
   only** for now (`registry.register(jsGenerator)`). No npm scanning, dynamic
   download, or arbitrary plugin execution until a trust model exists (signing,
   compatibility, sandboxing, permission declarations, discovery).
-- **#45 Terraform/OpenTofu** — not in create-packkit-js. After Phase 8 proves the
-  contract across programming languages, revisit as a dedicated `create-packkit-iac`
-  / `create-packkit-tofu` generator. Leave #45 open with that note.
+- **#45 Terraform/OpenTofu** — not in create-packkit-js. **Precondition now met** (the
+  contract is proven across JS/Python/Go, Phase 8). **Reframed recommendation: pursue
+  `@packkit/provider-aws` (Shape 2), NOT a standalone `create-packkit-tofu` generator.**
+  A provider reads a project's `deploymentContract` and emits the IaC to deploy *that*
+  project — so one AWS provider deploys a Node/Python/Go `service` from the same code
+  path (the payoff of the `service` generalization). A standalone IaC generator instead
+  hits a modeling inversion (IaC *is* the deployment → its own `deploymentContract` is
+  meaningless) and competes with `terraform-aws-modules`/Terragrunt. Contract→primitive
+  map: `static`→S3+CloudFront, `service`→Fargate/App Runner+ALB, `worker`→ECS/Lambda+SQS.
+  Kept open as the next **optional** initiative (a security-sensitive domain — IAM/OIDC/
+  state — to do deliberately, not reflexively). Caveat: a standalone infra repo like
+  `philatelyos-infra` is the generator shape, which a provider does not cover.
 - **#70 Polyglot contract packages** (one repo → npm **and** PyPI from one tag; a
   JS-package-and-Python-package with a language-neutral schema source of truth).
   **Decided shape: Shape 2 — a reusable release capability in `packkit-actions`
