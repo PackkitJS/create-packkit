@@ -1,0 +1,9 @@
+name: Stale references
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  stale-references:
+    uses: PackkitLabs/packkit-actions/.github/workflows/stale-references.yml@v1

@@ -1,0 +1,4 @@
+# .stale-refs-allow — file paths (ERE) exempt from the stale-reference audit.
+# Historical records: past org/repo/Pages names are correct here by design.
+(^|/)CHANGELOG\.md$
+(^|/)docs/history/
