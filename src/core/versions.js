@@ -11,6 +11,12 @@
 
 export const LAST_REVIEWED = '2026-07-26';
 
+// The `packageManager` field written into pnpm projects. `pnpm/action-setup@v6`
+// (with no pinned `version:`) resolves the pnpm version from this field, so a
+// pnpm project must carry it or CI fails with "No pnpm version is specified".
+// Shared by the single-package and monorepo paths so they can't drift apart.
+export const PNPM_PIN = 'pnpm@9.10.0';
+
 // name → npm spec. Deps that ship at one version everywhere.
 export const V = {
   // toolchain

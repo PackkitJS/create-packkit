@@ -44,6 +44,11 @@ function sweep() {
         configs.push({ label: `${preset} --lint ${lint} --pm ${packageManager}`, cfg: fromPreset(preset, { name: 'x', lint, packageManager }) });
   for (const lint of ['eslint-prettier', 'biome', 'oxlint', 'none'])
     configs.push({ label: `ts-lib --lint ${lint}`, cfg: fromPreset('ts-lib', { name: 'x', lint }) });
+  // Single-package presets across package managers — the axis #72 exposed (a
+  // pnpm project with no `packageManager` field breaks pnpm/action-setup in CI).
+  for (const preset of ['ts-lib', 'react-app', 'node-service'])
+    for (const packageManager of ['npm', 'pnpm', 'yarn', 'bun'])
+      configs.push({ label: `${preset} --pm ${packageManager}`, cfg: fromPreset(preset, { name: 'x', packageManager }) });
   return configs;
 }
 
@@ -100,6 +105,20 @@ test('CI runs a lint step exactly when the root package has a lint script', () =
     const hasLintScript = !!JSON.parse(files['package.json']).scripts?.lint;
     const run = cfg.packageManager === 'npm' ? 'npm run lint' : `${cfg.packageManager} lint`;
     assert.equal(ci.includes(`run: ${run}`), hasLintScript, `${label}: CI lint step must match presence of a root lint script`);
+  }
+});
+
+test('every pnpm project carries a packageManager field that pins pnpm', () => {
+  // pnpm/action-setup (used with no `version:`) reads the pnpm version from the
+  // package.json `packageManager` field; without it CI fails on the first run
+  // with "No pnpm version is specified" (#72). So any pnpm project must have it.
+  for (const { label, cfg } of sweep()) {
+    if (cfg.packageManager !== 'pnpm') continue;
+    const root = JSON.parse(generate(cfg).files['package.json']);
+    assert.ok(
+      typeof root.packageManager === 'string' && root.packageManager.startsWith('pnpm@'),
+      `${label}: pnpm project is missing a "packageManager": "pnpm@…" field`,
+    );
   }
 });
 

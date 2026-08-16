@@ -8,7 +8,7 @@ import agents from './features/agents.js';
 import gitfiles from './features/gitfiles.js';
 import { provenance, buildBaseline } from './provenance.js';
 import { ciFirstPushNote } from './ci-note.js';
-import { V } from './versions.js';
+import { V, PNPM_PIN } from './versions.js';
 
 export function buildMonorepo(cfg) {
   // Two genuinely different shapes: a set of publishable libraries, or a
@@ -34,7 +34,7 @@ export function buildMonorepo(cfg) {
     private: true,
     type: 'module',
     ...(cfg.license !== 'none' ? { license: cfg.license } : {}),
-    ...(pm === 'pnpm' ? { packageManager: 'pnpm@9.10.0' } : { workspaces: ['packages/*'] }),
+    ...(pm === 'pnpm' ? { packageManager: PNPM_PIN } : { workspaces: ['packages/*'] }),
     scripts: {
       build: 'turbo build',
       test: 'turbo test',
@@ -156,7 +156,7 @@ function buildFullstack(cfg) {
     type: 'module',
     ...(cfg.license !== 'none' ? { license: cfg.license } : {}),
     ...(pm === 'pnpm'
-      ? { packageManager: 'pnpm@9.10.0' }
+      ? { packageManager: PNPM_PIN }
       : { workspaces: ['apps/*', 'packages/*'] }),
     scripts: {
       dev: 'turbo dev',
