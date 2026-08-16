@@ -106,8 +106,15 @@ npm-debug.log*
 !.vscode/extensions.json
 .idea/
 
+# turborepo
+.turbo/
+
 ===== .npmrc =====
 engine-strict=true
+
+===== .prettierignore =====
+**/dist
+coverage
 
 ===== .prettierrc.json =====
 {
@@ -227,6 +234,10 @@ pnpm start   # one process serving the API and the built web app
 ```
 
 `@fixture/shared` is built before either app starts, so a change to a shared type surfaces as a type error on both sides rather than at runtime.
+
+## Continuous integration
+
+The `CI` workflow runs typecheck, lint, tests, and build on every push. It installs from a committed lockfile — so after creating the repo, run `pnpm install` and commit the generated `pnpm-lock.yaml`. Until then CI fails on the install step with a missing-lockfile error (expected on a brand-new repo).
 
 ## License
 
@@ -431,7 +442,7 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
 	js.configs.recommended,
 	...tseslint.configs.recommended,
-	{ ignores: ['**/dist'] },
+	{ ignores: ['**/dist', '**/coverage'] },
 );
 
 ===== package.json =====
@@ -448,16 +459,18 @@ export default tseslint.config(
     "start": "pnpm --filter ./apps/server start",
     "test": "turbo test",
     "lint": "turbo lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
     "turbo": "^2.0.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.0",
+    "prettier": "^3.3.0",
     "eslint": "^10.0.0",
     "@eslint/js": "^10.0.0",
     "typescript-eslint": "^8.0.0",
-    "prettier": "^3.3.0",
     "@types/node": "^24.0.0"
   }
 }
@@ -554,10 +567,13 @@ export function describeHealth(h: Health): string {
         "hash": "09cd7e37936d08"
       },
       ".gitignore": {
-        "hash": "1fd9c31aebe75a"
+        "hash": "1c80582a2630b1"
       },
       ".npmrc": {
         "hash": "154fbd08123dcc"
+      },
+      ".prettierignore": {
+        "hash": "05536c8e387901"
       },
       ".prettierrc.json": {
         "hash": "05a19eb6a83b83"
@@ -578,7 +594,7 @@ export function describeHealth(h: Health): string {
         "hash": "199a668c7eefba"
       },
       "README.md": {
-        "hash": "0e9c745c16edb7"
+        "hash": "05b8b8ebe4f561"
       },
       "SECURITY.md": {
         "hash": "1fc69ca4db19fc"
@@ -620,10 +636,10 @@ export function describeHealth(h: Health): string {
         "hash": "17911097f039a2"
       },
       "eslint.config.js": {
-        "hash": "11deda6a3f9eaa"
+        "hash": "0dbb9cc02c24fd"
       },
       "package.json": {
-        "hash": "0ec08f9274ab74"
+        "hash": "19b98e26fad77c"
       },
       "packages/shared/package.json": {
         "hash": "194bbbecd6889b"
@@ -654,6 +670,8 @@ export function describeHealth(h: Health): string {
         "start": "pnpm --filter ./apps/server start",
         "test": "turbo test",
         "lint": "turbo lint",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
         "typecheck": "turbo typecheck"
       },
       "dependencies": {
@@ -661,10 +679,10 @@ export function describeHealth(h: Health): string {
           "turbo": "^2.0.0",
           "typescript": "^5.9.3",
           "vitest": "^4.0.0",
+          "prettier": "^3.3.0",
           "eslint": "^10.0.0",
           "@eslint/js": "^10.0.0",
           "typescript-eslint": "^8.0.0",
-          "prettier": "^3.3.0",
           "@types/node": "^24.0.0"
         }
       },

@@ -377,7 +377,7 @@ npx fixture --help
 
 ## Continuous integration
 
-The `CI` workflow runs typecheck, lint, tests, and build on every push. It uses `npm ci`, which needs a committed lockfile — so after creating the repo, run `npm install` and commit the generated `package-lock.json`. Until then CI fails with _"Dependencies lock file is not found"_ (expected on a brand-new repo).
+The `CI` workflow runs typecheck, lint, tests, and build on every push. It installs from a committed lockfile — so after creating the repo, run `npm install` and commit the generated `package-lock.json`. Until then CI fails on the install step with a missing-lockfile error (expected on a brand-new repo).
 
 The Pages deploy needs Pages enabled first: **Settings → Pages → Source: GitHub Actions**. Until then it fails with _"Get Pages site failed"_ (also expected).
 
@@ -593,7 +593,7 @@ export default tseslint.config(
         "hash": "199a668c7eefba"
       },
       "README.md": {
-        "hash": "0c12a783077218"
+        "hash": "07d679a9fce0a9"
       },
       "SECURITY.md": {
         "hash": "1fc69ca4db19fc"

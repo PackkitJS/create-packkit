@@ -7,6 +7,7 @@ import community from './features/community.js';
 import agents from './features/agents.js';
 import gitfiles from './features/gitfiles.js';
 import { provenance, buildBaseline } from './provenance.js';
+import { ciFirstPushNote } from './ci-note.js';
 import { V } from './versions.js';
 
 export function buildMonorepo(cfg) {
@@ -22,8 +23,9 @@ export function buildMonorepo(cfg) {
   const core = `@${scope}/core`;
   const utils = `@${scope}/utils`;
   const wsProto = pm === 'pnpm' ? 'workspace:*' : '*';
+  const lint = monorepoLint(cfg);
 
-  Object.assign(files, workspaceScaffold(cfg, { workspaceGlobs: ['packages/*'] }));
+  Object.assign(files, workspaceScaffold(cfg, { workspaceGlobs: ['packages/*'], lint }));
 
   // ---- root ----
   const rootPkg = {
@@ -36,7 +38,8 @@ export function buildMonorepo(cfg) {
     scripts: {
       build: 'turbo build',
       test: 'turbo test',
-      lint: 'turbo lint',
+      ...(lint.rootLint ? { lint: lint.rootLint } : {}),
+      ...lint.rootScripts,
       typecheck: 'turbo typecheck',
       dev: 'turbo dev',
       changeset: 'changeset',
@@ -48,10 +51,7 @@ export function buildMonorepo(cfg) {
       typescript: V.typescript,
       tsup: V.tsup,
       vitest: V.vitest,
-      eslint: V.eslint,
-      '@eslint/js': V['@eslint/js'],
-      'typescript-eslint': V['typescript-eslint'],
-      prettier: V.prettier,
+      ...lint.rootDevDeps,
       '@changesets/cli': V['@changesets/cli'],
       '@types/node': `^${cfg.nodeVersion}.0.0`,
     },
@@ -64,7 +64,7 @@ export function buildMonorepo(cfg) {
       build: { dependsOn: ['^build'], outputs: ['dist/**'] },
       test: { dependsOn: ['^build'] },
       typecheck: { dependsOn: ['^build'] },
-      lint: {},
+      ...(lint.turboLint ? { lint: {} } : {}),
       dev: { cache: false, persistent: true },
     },
   });
@@ -93,6 +93,7 @@ export function buildMonorepo(cfg) {
     ].join('\n'),
     test: exampleTest(`import { greet } from './index.js';`, `expect(greet('world')).toBe('Hello, world!')`),
     deps: {},
+    lintScript: lint.perPackageLint,
   });
 
   addPackage(files, {
@@ -109,6 +110,7 @@ export function buildMonorepo(cfg) {
     ].join('\n'),
     test: exampleTest(`import { shout } from './index.js';`, `expect(shout('world')).toBe('HELLO, WORLD!')`),
     deps: { [core]: wsProto },
+    lintScript: lint.perPackageLint,
   });
 
   // Written last so the baseline covers every workspace file.
@@ -141,9 +143,11 @@ function buildFullstack(cfg) {
   const scope = cfg.name.replace(/^@/, '').split('/')[0];
   const shared = `@${scope}/shared`;
   const wsProto = pm === 'pnpm' ? 'workspace:*' : '*';
+  const lint = monorepoLint(cfg);
+  const pkgLint = lint.perPackageLint ? { lint: lint.perPackageLint } : {};
 
   // apps/* + packages/*, and the DOM lib the web app's JSX needs.
-  Object.assign(files, workspaceScaffold(cfg, { workspaceGlobs: ['apps/*', 'packages/*'], tsconfigLib: ['ES2022', 'DOM'] }));
+  Object.assign(files, workspaceScaffold(cfg, { workspaceGlobs: ['apps/*', 'packages/*'], tsconfigLib: ['ES2022', 'DOM'], lint }));
 
   files['package.json'] = toJson({
     name: cfg.name,
@@ -160,17 +164,15 @@ function buildFullstack(cfg) {
       // Production runs the built server, which also serves the web build.
       start: `${pm === 'npm' ? 'npm --prefix apps/server run' : `${pm} --filter ./apps/server`} start`,
       test: 'turbo test',
-      lint: 'turbo lint',
+      ...(lint.rootLint ? { lint: lint.rootLint } : {}),
+      ...lint.rootScripts,
       typecheck: 'turbo typecheck',
     },
     devDependencies: {
       turbo: V.turbo,
       typescript: V.typescript,
       vitest: V.vitest,
-      eslint: V.eslint,
-      '@eslint/js': V['@eslint/js'],
-      'typescript-eslint': V['typescript-eslint'],
-      prettier: V.prettier,
+      ...lint.rootDevDeps,
       '@types/node': `^${cfg.nodeVersion}.0.0`,
     },
   });
@@ -184,7 +186,7 @@ function buildFullstack(cfg) {
       dev: { dependsOn: ['^build'], cache: false, persistent: true },
       test: { dependsOn: ['^build'] },
       typecheck: { dependsOn: ['^build'] },
-      lint: {},
+      ...(lint.turboLint ? { lint: {} } : {}),
     },
   });
 
@@ -203,7 +205,7 @@ function buildFullstack(cfg) {
       build: 'tsup src/index.ts --format esm --dts --clean',
       test: 'vitest run',
       typecheck: 'tsc --noEmit',
-      lint: 'eslint .',
+      ...pkgLint,
     },
     devDependencies: { tsup: V.tsup },
   });
@@ -240,7 +242,7 @@ function buildFullstack(cfg) {
       start: 'node dist/index.js',
       test: 'vitest run',
       typecheck: 'tsc --noEmit',
-      lint: 'eslint .',
+      ...pkgLint,
     },
     dependencies: { ...server.deps, [shared]: wsProto },
     devDependencies: { tsx: V.tsx, tsup: V.tsup, ...server.devDeps },
@@ -262,7 +264,7 @@ function buildFullstack(cfg) {
       preview: 'vite preview',
       test: 'vitest run',
       typecheck: 'tsc --noEmit',
-      lint: 'eslint .',
+      ...pkgLint,
     },
     dependencies: { react: V.react, 'react-dom': V['react-dom'], [shared]: wsProto },
     devDependencies: {
@@ -561,6 +563,7 @@ function fullstackReadme(cfg, pm, shared) {
     '',
     `\`${shared}\` is built before either app starts, so a change to a shared type surfaces as a type error on both sides rather than at runtime.`,
     '',
+    ...ciFirstPushNote(cfg),
     cfg.license !== 'none' ? `## License\n\n${cfg.license}${cfg.author ? ' © ' + cfg.author : ''}\n` : '',
   ].join('\n');
 }
@@ -569,12 +572,14 @@ function fullstackReadme(cfg, pm, shared) {
 // TypeScript base config, lint/format config, community files, CI, and
 // provenance. Each layout adds its own root package.json, turbo tasks, and
 // packages on top. Extracted so these aren't maintained twice.
-function workspaceScaffold(cfg, { workspaceGlobs, tsconfigLib = ['ES2022'] }) {
+function workspaceScaffold(cfg, { workspaceGlobs, tsconfigLib = ['ES2022'], lint }) {
   const files = {};
   // Reuse the package-agnostic root files (LICENSE, community, AGENTS.md, gitignore).
   for (const feat of [community, agents, gitfiles]) {
     if (feat.active(cfg)) Object.assign(files, feat.apply(cfg).files);
   }
+  // Turborepo's local cache — never committed.
+  if (files['.gitignore']) files['.gitignore'] += '\n# turborepo\n.turbo/\n';
   if (cfg.packageManager === 'pnpm') {
     files['pnpm-workspace.yaml'] = 'packages:\n' + workspaceGlobs.map((g) => `  - "${g}"\n`).join('');
   }
@@ -592,25 +597,79 @@ function workspaceScaffold(cfg, { workspaceGlobs, tsconfigLib = ['ES2022'] }) {
       noEmit: true,
     },
   });
-  files['eslint.config.js'] = [
-    `import js from '@eslint/js';`,
-    `import tseslint from 'typescript-eslint';`,
-    ``,
-    `export default tseslint.config(`,
-    `\tjs.configs.recommended,`,
-    `\t...tseslint.configs.recommended,`,
-    `\t{ ignores: ['**/dist'] },`,
-    `);`,
-    ``,
-  ].join('\n');
-  files['.prettierrc.json'] = toJson({ useTabs: true, singleQuote: true, semi: true, printWidth: 100, trailingComma: 'all' });
-  files['.github/workflows/ci.yml'] = ciWorkflow(cfg, cfg.packageManager);
+  // Lint/format config (biome.json, or eslint.config.js + prettier) chosen by --lint.
+  Object.assign(files, lint.files);
+  files['.github/workflows/ci.yml'] = ciWorkflow(cfg, cfg.packageManager, { hasLint: !!lint.rootLint });
   // packkit.json is written by the caller, after every package exists, so its
   // baseline covers the whole project.
   return files;
 }
 
-function addPackage(files, { name, dir, src, test, deps }) {
+// Lint/format realization for a workspace. ESLint runs per package under
+// `turbo lint` (each package resolves the root flat config); Biome and oxlint
+// run once from the workspace root across every package, which is how they are
+// meant to be used and avoids per-package config. Mirrors features/lint.js so a
+// monorepo treats a given --lint choice exactly as a single package does.
+function monorepoLint(cfg) {
+  const files = {};
+  const rootDevDeps = {};
+  const rootScripts = {};
+  let rootLint = null; // root "lint" script (null → omit it, and CI skips lint)
+  let perPackageLint = null; // each workspace package's "lint" script
+  let turboLint = false; // include turbo's lint task (only ESLint runs per package)
+
+  if (cfg.lint === 'none') {
+    return { files, rootDevDeps, rootScripts, rootLint, perPackageLint, turboLint };
+  }
+
+  // Prettier is shared by ESLint and oxlint.
+  if (cfg.lint === 'eslint-prettier' || cfg.lint === 'oxlint') {
+    files['.prettierrc.json'] = toJson({ useTabs: true, singleQuote: true, semi: true, printWidth: 100, trailingComma: 'all' });
+    files['.prettierignore'] = '**/dist\ncoverage\n';
+    rootScripts.format = 'prettier --write .';
+    rootScripts['format:check'] = 'prettier --check .';
+    rootDevDeps.prettier = V.prettier;
+  }
+
+  if (cfg.lint === 'eslint-prettier') {
+    files['eslint.config.js'] = [
+      `import js from '@eslint/js';`,
+      `import tseslint from 'typescript-eslint';`,
+      ``,
+      `export default tseslint.config(`,
+      `\tjs.configs.recommended,`,
+      `\t...tseslint.configs.recommended,`,
+      `\t{ ignores: ['**/dist', '**/coverage'] },`,
+      `);`,
+      ``,
+    ].join('\n');
+    rootDevDeps.eslint = V.eslint;
+    rootDevDeps['@eslint/js'] = V['@eslint/js'];
+    rootDevDeps['typescript-eslint'] = V['typescript-eslint'];
+    perPackageLint = 'eslint .';
+    rootLint = 'turbo lint';
+    turboLint = true;
+  } else if (cfg.lint === 'oxlint') {
+    rootDevDeps.oxlint = V.oxlint;
+    rootScripts['lint:fix'] = 'oxlint --fix';
+    rootLint = 'oxlint';
+  } else if (cfg.lint === 'biome') {
+    files['biome.json'] = toJson({
+      $schema: 'https://biomejs.dev/schemas/2.1.2/schema.json',
+      formatter: { enabled: true, indentStyle: 'tab', lineWidth: 100 },
+      linter: { enabled: true },
+      javascript: { formatter: { quoteStyle: 'single', trailingCommas: 'all' } },
+    });
+    rootDevDeps['@biomejs/biome'] = V['@biomejs/biome'];
+    rootScripts['lint:fix'] = 'biome lint --write .';
+    rootScripts.format = 'biome format --write .';
+    rootLint = 'biome lint .';
+  }
+
+  return { files, rootDevDeps, rootScripts, rootLint, perPackageLint, turboLint };
+}
+
+function addPackage(files, { name, dir, src, test, deps, lintScript }) {
   const pkg = {
     name,
     version: '0.0.0',
@@ -624,7 +683,7 @@ function addPackage(files, { name, dir, src, test, deps }) {
       dev: 'tsup src/index.ts --format esm --dts --watch',
       test: 'vitest run',
       typecheck: 'tsc --noEmit',
-      lint: 'eslint .',
+      ...(lintScript ? { lint: lintScript } : {}),
     },
     ...(Object.keys(deps).length ? { dependencies: deps } : {}),
   };
@@ -638,7 +697,7 @@ function exampleTest(importLine, assertion) {
   return [`import { describe, it, expect } from 'vitest';`, importLine, ``, `describe('example', () => {`, `\tit('works', () => {`, `\t\t${assertion};`, `\t});`, `});`, ``].join('\n');
 }
 
-function ciWorkflow(cfg, pm) {
+function ciWorkflow(cfg, pm, { hasLint = true } = {}) {
   const setup = ['      - uses: actions/checkout@v7'];
   if (pm === 'pnpm') setup.push('      - uses: pnpm/action-setup@v6');
   setup.push(
@@ -662,7 +721,7 @@ function ciWorkflow(cfg, pm) {
     setup.join('\n'),
     `      - run: ${install}`,
     `      - run: ${run('typecheck')}`,
-    `      - run: ${run('lint')}`,
+    ...(hasLint ? [`      - run: ${run('lint')}`] : []),
     `      - run: ${run('test')}`,
     `      - run: ${run('build')}`,
     '',
@@ -690,6 +749,7 @@ function rootReadme(cfg, pm, core, utils) {
     run('test'),
     '```',
     '',
+    ...ciFirstPushNote(cfg),
     cfg.license !== 'none' ? `## License\n\n${cfg.license}${cfg.author ? ' © ' + cfg.author : ''}\n` : '',
   ].join('\n');
 }

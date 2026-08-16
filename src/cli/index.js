@@ -287,13 +287,13 @@ export async function run(argv = process.argv.slice(2)) {
   const next = [
     args.here ? null : `cd ${rel}`,
     config.install ? null : `${config.packageManager} install`,
-    config.hasApp ? `${runWord(config)} dev` : config.hasBuild ? `${runWord(config)} build` : null,
+    config.hasApp || config.monorepoLayout === 'fullstack' ? `${runWord(config)} dev` : config.hasBuild ? `${runWord(config)} build` : null,
     config.test !== 'none' ? `${runWord(config)} test` : null,
   ].filter(Boolean);
 
   // Clarify things that surprise people: a framework *library* has no dev
   // server (its `dev` just rebuilds), and the Node floor this project needs.
-  const componentLib = config.hasFramework && config.hasLibrary && !config.hasApp;
+  const componentLib = config.hasFramework && config.hasLibrary && !config.hasApp && !config.monorepo;
   const hints = [
     componentLib
       ? `This is a ${config.framework} component library — \`${runWord(config)} dev\` rebuilds on change (there's no dev server). For a runnable app, scaffold the "${config.framework}-app" preset instead.`

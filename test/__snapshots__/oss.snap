@@ -329,7 +329,7 @@ greet('world'); // "Hello, world!"
 
 ## Continuous integration
 
-The `CI` workflow runs typecheck, lint, tests, and build on every push. It uses `npm ci`, which needs a committed lockfile — so after creating the repo, run `npm install` and commit the generated `package-lock.json`. Until then CI fails with _"Dependencies lock file is not found"_ (expected on a brand-new repo).
+The `CI` workflow runs typecheck, lint, tests, and build on every push. It installs from a committed lockfile — so after creating the repo, run `npm install` and commit the generated `package-lock.json`. Until then CI fails on the install step with a missing-lockfile error (expected on a brand-new repo).
 
 ## Releasing
 
@@ -535,7 +535,7 @@ export default tseslint.config(
         "hash": "199a668c7eefba"
       },
       "README.md": {
-        "hash": "0a14587636e5bd"
+        "hash": "09a0d1444b01e9"
       },
       "SECURITY.md": {
         "hash": "1fc69ca4db19fc"
