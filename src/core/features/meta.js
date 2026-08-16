@@ -2,7 +2,7 @@
 
 import { engineFloor, nodePin } from '../node.js';
 import { ciFirstPushNote } from '../ci-note.js';
-import { PNPM_PIN } from '../versions.js';
+import { PNPM_PIN, YARN_PIN } from '../versions.js';
 
 export default {
   id: 'meta',
@@ -15,9 +15,13 @@ export default {
       description: cfg.description || '',
       type: cfg.moduleFormat === 'cjs' ? 'commonjs' : 'module',
       engines: { node: `>=${engineFloor(cfg.nodeVersion)}` },
-      // pnpm's CI setup (pnpm/action-setup) reads the pnpm version from here;
-      // without it the generated CI fails on its first run. Matches the monorepo.
-      ...(cfg.packageManager === 'pnpm' ? { packageManager: PNPM_PIN } : {}),
+      // Corepack/pnpm-action-setup read the tool version from here; without it the
+      // generated CI fails on its first run. pnpm and modern yarn both need it.
+      ...(cfg.packageManager === 'pnpm'
+        ? { packageManager: PNPM_PIN }
+        : cfg.packageManager === 'yarn'
+          ? { packageManager: YARN_PIN }
+          : {}),
       scripts: {},
     };
 

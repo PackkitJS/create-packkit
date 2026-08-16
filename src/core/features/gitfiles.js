@@ -50,11 +50,18 @@ indent_size = 2
 const NPMRC = `engine-strict=true
 `;
 
+// Modern Yarn (Berry) defaults to Plug'n'Play, which the rest of the generated
+// toolchain (tsup, vitest, ESLint) doesn't expect. node-modules linker keeps a
+// conventional install so everything resolves the way every other pm does.
+const YARNRC = `nodeLinker: node-modules
+`;
+
 export default {
   id: 'gitfiles',
   active: () => true,
   apply(cfg) {
     const files = { '.gitignore': GITIGNORE, '.npmrc': NPMRC };
+    if (cfg.packageManager === 'yarn') files['.yarnrc.yml'] = YARNRC;
     if (cfg.editorconfig) files['.editorconfig'] = EDITORCONFIG;
     return { files, pkg: {} };
   },

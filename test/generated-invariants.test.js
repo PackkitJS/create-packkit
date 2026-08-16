@@ -49,6 +49,10 @@ function sweep() {
   for (const preset of ['ts-lib', 'react-app', 'node-service'])
     for (const packageManager of ['npm', 'pnpm', 'yarn', 'bun'])
       configs.push({ label: `${preset} --pm ${packageManager}`, cfg: fromPreset(preset, { name: 'x', packageManager }) });
+  // Monorepo layouts across the non-default package managers too.
+  for (const preset of ['monorepo', 'fullstack'])
+    for (const packageManager of ['npm', 'yarn', 'bun'])
+      configs.push({ label: `${preset} --pm ${packageManager}`, cfg: fromPreset(preset, { name: 'x', packageManager }) });
   return configs;
 }
 
@@ -119,6 +123,28 @@ test('every pnpm project carries a packageManager field that pins pnpm', () => {
       typeof root.packageManager === 'string' && root.packageManager.startsWith('pnpm@'),
       `${label}: pnpm project is missing a "packageManager": "pnpm@…" field`,
     );
+  }
+});
+
+test('every yarn project targets modern Yarn (Berry via Corepack)', () => {
+  // Yarn projects run current Yarn, provisioned by Corepack from packageManager,
+  // with a node-modules linker (Berry defaults to PnP, which the toolchain does
+  // not expect) and `yarn install --immutable` (Berry's --frozen-lockfile). CI
+  // must enable Corepack or it falls back to the runner's classic Yarn 1.x.
+  for (const { label, cfg } of sweep()) {
+    if (cfg.packageManager !== 'yarn') continue;
+    const { files } = generate(cfg);
+    const root = JSON.parse(files['package.json']);
+    assert.ok(
+      typeof root.packageManager === 'string' && /^yarn@[2-9]/.test(root.packageManager),
+      `${label}: yarn project must pin modern Yarn via packageManager (got ${root.packageManager})`,
+    );
+    assert.match(files['.yarnrc.yml'] || '', /nodeLinker:\s*node-modules/, `${label}: needs .yarnrc.yml nodeLinker: node-modules`);
+    const ci = files['.github/workflows/ci.yml'];
+    if (ci) {
+      assert.ok(ci.includes('corepack enable'), `${label}: yarn CI must enable Corepack`);
+      assert.ok(!ci.includes('yarn install --frozen-lockfile'), `${label}: Berry uses --immutable, not --frozen-lockfile`);
+    }
   }
 });
 

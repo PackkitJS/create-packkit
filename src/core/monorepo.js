@@ -8,7 +8,7 @@ import agents from './features/agents.js';
 import gitfiles from './features/gitfiles.js';
 import { provenance, buildBaseline } from './provenance.js';
 import { ciFirstPushNote } from './ci-note.js';
-import { V, PNPM_PIN } from './versions.js';
+import { V, PNPM_PIN, YARN_PIN } from './versions.js';
 
 export function buildMonorepo(cfg) {
   // Two genuinely different shapes: a set of publishable libraries, or a
@@ -34,6 +34,7 @@ export function buildMonorepo(cfg) {
     private: true,
     type: 'module',
     ...(cfg.license !== 'none' ? { license: cfg.license } : {}),
+    ...(pm === 'yarn' ? { packageManager: YARN_PIN } : {}),
     ...(pm === 'pnpm' ? { packageManager: PNPM_PIN } : { workspaces: ['packages/*'] }),
     scripts: {
       build: 'turbo build',
@@ -155,6 +156,7 @@ function buildFullstack(cfg) {
     private: true,
     type: 'module',
     ...(cfg.license !== 'none' ? { license: cfg.license } : {}),
+    ...(pm === 'yarn' ? { packageManager: YARN_PIN } : {}),
     ...(pm === 'pnpm'
       ? { packageManager: PNPM_PIN }
       : { workspaces: ['apps/*', 'packages/*'] }),
@@ -706,7 +708,17 @@ function ciWorkflow(cfg, pm, { hasLint = true } = {}) {
     `          node-version: '${cfg.nodeVersion}'`,
     `          cache: '${pm === 'yarn' ? 'yarn' : pm === 'pnpm' ? 'pnpm' : 'npm'}'`,
   );
-  const install = pm === 'npm' ? 'npm ci' : pm === 'pnpm' ? 'pnpm install --frozen-lockfile' : `${pm} install --frozen-lockfile`;
+  // Modern Yarn (Berry) comes from Corepack via the `packageManager` field.
+  if (pm === 'yarn') setup.push('      - run: corepack enable');
+  // Berry renamed --frozen-lockfile to --immutable; bun keeps --frozen-lockfile.
+  const install =
+    pm === 'npm'
+      ? 'npm ci'
+      : pm === 'yarn'
+        ? 'yarn install --immutable'
+        : pm === 'pnpm'
+          ? 'pnpm install --frozen-lockfile'
+          : `${pm} install --frozen-lockfile`;
   const run = (s) => (pm === 'npm' ? `npm run ${s}` : `${pm} ${s}`);
   return [
     'name: CI',

@@ -29,6 +29,9 @@ function setupSteps(cfg) {
       `          cache: '${cfg.packageManager === 'yarn' ? 'yarn' : cfg.packageManager === 'pnpm' ? 'pnpm' : 'npm'}'`,
     );
   }
+  // Modern Yarn is provisioned by Corepack from the `packageManager` field; enable
+  // it (after setup-node, on that Node) so `yarn` is Berry, not the runner's 1.x.
+  if (cfg.packageManager === 'yarn') steps.push('      - run: corepack enable');
   steps.push(`      - run: ${pmInstall(cfg)}`);
   return steps.join('\n');
 }

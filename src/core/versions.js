@@ -17,6 +17,12 @@ export const LAST_REVIEWED = '2026-07-26';
 // Shared by the single-package and monorepo paths so they can't drift apart.
 export const PNPM_PIN = 'pnpm@9.10.0';
 
+// The `packageManager` field written into yarn projects. We target modern Yarn
+// (Berry), provisioned by Corepack from this pin — so a generated yarn project
+// runs current Yarn everywhere, not the runner's preinstalled classic 1.x. Paired
+// with a `.yarnrc.yml` (nodeLinker: node-modules) and a `corepack enable` CI step.
+export const YARN_PIN = 'yarn@4.5.0';
+
 // name → npm spec. Deps that ship at one version everywhere.
 export const V = {
   // toolchain
