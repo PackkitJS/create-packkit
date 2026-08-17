@@ -296,7 +296,7 @@ export function diffPackageJson(diskStr, genStr, baseline) {
       if (current === undefined) {
         addedDependencies[section][name] = { generated: version };
       } else if (current !== version) {
-        const b = base?.dependencies?.[section]?.[name];
+        const b = base?.[section]?.[name];
         changedDependencies[section][name] = { current, generated: version, ...classify(hasBase && b !== undefined, b, current === b, version === b) };
       }
     }

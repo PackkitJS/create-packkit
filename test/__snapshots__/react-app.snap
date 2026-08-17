@@ -385,7 +385,7 @@ export default tseslint.config(
     ]
   },
   "baseline": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "files": {
       ".editorconfig": {
         "hash": "1811c495930b03"
@@ -463,7 +463,10 @@ export default tseslint.config(
         "hash": "1f48393bba2f79"
       },
       "src/main.tsx": {
-        "hash": "15b54f6a5f506d"
+        "hash": "1e8b765624d8ff"
+      },
+      "src/vite-env.d.ts": {
+        "hash": "0e16e625a58658"
       },
       "tsconfig.json": {
         "hash": "016a0659e66edd"
@@ -492,30 +495,28 @@ export default tseslint.config(
         "prepare": "simple-git-hooks"
       },
       "dependencies": {
-        "dependencies": {
-          "react": "^19.0.0",
-          "react-dom": "^19.0.0"
-        },
-        "devDependencies": {
-          "@eslint/js": "^10.0.0",
-          "@testing-library/dom": "^10.0.0",
-          "@testing-library/react": "^16.0.0",
-          "@types/node": "^24.0.0",
-          "@types/react": "^19.0.0",
-          "@types/react-dom": "^19.0.0",
-          "@vitejs/plugin-react": "^6.0.0",
-          "@vitest/coverage-v8": "^4.0.0",
-          "eslint": "^10.0.0",
-          "jsdom": "^29.0.0",
-          "lint-staged": "^16.2.0",
-          "prettier": "^3.3.0",
-          "rimraf": "^6.0.0",
-          "simple-git-hooks": "^2.11.0",
-          "typescript": "^5.9.3",
-          "typescript-eslint": "^8.0.0",
-          "vite": "^8.0.0",
-          "vitest": "^4.0.0"
-        }
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+      },
+      "devDependencies": {
+        "@eslint/js": "^10.0.0",
+        "@testing-library/dom": "^10.0.0",
+        "@testing-library/react": "^16.0.0",
+        "@types/node": "^24.0.0",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "@vitejs/plugin-react": "^6.0.0",
+        "@vitest/coverage-v8": "^4.0.0",
+        "eslint": "^10.0.0",
+        "jsdom": "^29.0.0",
+        "lint-staged": "^16.2.0",
+        "prettier": "^3.3.0",
+        "rimraf": "^6.0.0",
+        "simple-git-hooks": "^2.11.0",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.0.0",
+        "vite": "^8.0.0",
+        "vitest": "^4.0.0"
       },
       "protectedFields": {
         "engines": {
@@ -548,9 +549,15 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.js';
 
-createRoot(document.getElementById('root')!).render(
+const root = document.getElementById('root');
+if (!root) throw new Error('Root element #root not found');
+
+createRoot(root).render(
 	<StrictMode><App /></StrictMode>,
 );
+
+===== src/vite-env.d.ts =====
+/// <reference types="vite/client" />
 
 ===== tsconfig.json =====
 {

@@ -195,7 +195,7 @@ MIT © Fixture Author <fixture@example.com>
     "vscode": false
   },
   "baseline": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "files": {
       ".editorconfig": {
         "hash": "1811c495930b03"
@@ -239,13 +239,11 @@ MIT © Fixture Author <fixture@example.com>
         "prepublishOnly": "tsup",
         "clean": "rimraf dist"
       },
-      "dependencies": {
-        "devDependencies": {
-          "@types/node": "^24.0.0",
-          "rimraf": "^6.0.0",
-          "tsup": "^8.0.0",
-          "typescript": "^5.9.3"
-        }
+      "devDependencies": {
+        "@types/node": "^24.0.0",
+        "rimraf": "^6.0.0",
+        "tsup": "^8.0.0",
+        "typescript": "^5.9.3"
       },
       "protectedFields": {
         "exports": {

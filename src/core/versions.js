@@ -15,7 +15,7 @@ export const LAST_REVIEWED = '2026-07-26';
 // (with no pinned `version:`) resolves the pnpm version from this field, so a
 // pnpm project must carry it or CI fails with "No pnpm version is specified".
 // Shared by the single-package and monorepo paths so they can't drift apart.
-export const PNPM_PIN = 'pnpm@9.10.0';
+export const PNPM_PIN = 'pnpm@10.0.0';
 
 // The `packageManager` field written into yarn projects. We target modern Yarn
 // (Berry), provisioned by Corepack from this pin — so a generated yarn project
@@ -31,7 +31,10 @@ export const V = {
   eslint: '^10.0.0',
   '@eslint/js': '^10.0.0',
   prettier: '^3.3.0',
-  '@biomejs/biome': '^2.0.0',
+  // Kept in step with the biome.json $schema (see biome-config.js, which derives
+  // the schema URL from this) so a fresh install doesn't warn about a version
+  // mismatch. Bump both together (deriving the schema does that automatically).
+  '@biomejs/biome': '^2.5.8',
   oxlint: '^1.0.0',
   turbo: '^2.0.0',
   rimraf: '^6.0.0',

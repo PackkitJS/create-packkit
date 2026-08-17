@@ -425,7 +425,7 @@ export default tseslint.config(
     "framework": "svelte"
   },
   "baseline": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "files": {
       ".changeset/README.md": {
         "hash": "0e16f282026359"
@@ -536,29 +536,27 @@ export default tseslint.config(
         "version": "changeset version",
         "release": "changeset publish"
       },
-      "dependencies": {
-        "devDependencies": {
-          "@changesets/cli": "^2.27.0",
-          "@eslint/js": "^10.0.0",
-          "@sveltejs/vite-plugin-svelte": "^7.0.0",
-          "@testing-library/dom": "^10.0.0",
-          "@testing-library/svelte": "^5.2.0",
-          "@types/node": "^24.0.0",
-          "@vitest/coverage-v8": "^4.0.0",
-          "eslint": "^10.0.0",
-          "jsdom": "^29.0.0",
-          "lint-staged": "^16.2.0",
-          "prettier": "^3.3.0",
-          "simple-git-hooks": "^2.11.0",
-          "svelte": "^5.0.0",
-          "svelte-check": "^4.0.0",
-          "typescript": "^5.9.3",
-          "typescript-eslint": "^8.0.0",
-          "vitest": "^4.0.0"
-        },
-        "peerDependencies": {
-          "svelte": ">=5"
-        }
+      "devDependencies": {
+        "@changesets/cli": "^2.27.0",
+        "@eslint/js": "^10.0.0",
+        "@sveltejs/vite-plugin-svelte": "^7.0.0",
+        "@testing-library/dom": "^10.0.0",
+        "@testing-library/svelte": "^5.2.0",
+        "@types/node": "^24.0.0",
+        "@vitest/coverage-v8": "^4.0.0",
+        "eslint": "^10.0.0",
+        "jsdom": "^29.0.0",
+        "lint-staged": "^16.2.0",
+        "prettier": "^3.3.0",
+        "simple-git-hooks": "^2.11.0",
+        "svelte": "^5.0.0",
+        "svelte-check": "^4.0.0",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.0.0",
+        "vitest": "^4.0.0"
+      },
+      "peerDependencies": {
+        "svelte": ">=5"
       },
       "protectedFields": {
         "exports": {

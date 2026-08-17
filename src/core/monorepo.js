@@ -8,6 +8,7 @@ import agents from './features/agents.js';
 import gitfiles from './features/gitfiles.js';
 import { provenance, buildBaseline } from './provenance.js';
 import { ciFirstPushNote } from './ci-note.js';
+import { biomeConfig } from './biome-config.js';
 import { V, PNPM_PIN, YARN_PIN } from './versions.js';
 
 export function buildMonorepo(cfg) {
@@ -328,12 +329,17 @@ function buildFullstack(cfg) {
     `</html>`,
     ``,
   ].join('\n');
+  files['apps/web/src/vite-env.d.ts'] = '/// <reference types="vite/client" />\n';
   files['apps/web/src/main.tsx'] = [
     `import { StrictMode } from 'react';`,
     `import { createRoot } from 'react-dom/client';`,
     `import { App } from './App.js';`,
     ``,
-    `createRoot(document.getElementById('root')!).render(`,
+    // Guarded lookup rather than a non-null assertion (clean under strict lint).
+    `const root = document.getElementById('root');`,
+    `if (!root) throw new Error('Root element #root not found');`,
+    ``,
+    `createRoot(root).render(`,
     `\t<StrictMode>`,
     `\t\t<App />`,
     `\t</StrictMode>,`,
@@ -656,12 +662,7 @@ function monorepoLint(cfg) {
     rootScripts['lint:fix'] = 'oxlint --fix';
     rootLint = 'oxlint';
   } else if (cfg.lint === 'biome') {
-    files['biome.json'] = toJson({
-      $schema: 'https://biomejs.dev/schemas/2.1.2/schema.json',
-      formatter: { enabled: true, indentStyle: 'tab', lineWidth: 100 },
-      linter: { enabled: true },
-      javascript: { formatter: { quoteStyle: 'single', trailingCommas: 'all' } },
-    });
+    files['biome.json'] = toJson(biomeConfig());
     rootDevDeps['@biomejs/biome'] = V['@biomejs/biome'];
     rootScripts['lint:fix'] = 'biome lint --write .';
     rootScripts.format = 'biome format --write .';

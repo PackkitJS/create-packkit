@@ -17,8 +17,10 @@ import { contentHash } from './hash.js';
 // Replaying a config shouldn't re-run someone else's `git init` or install.
 const TRANSIENT = new Set(['gitInit', 'install', 'generatorVersion', 'preset', 'name']);
 
-// Bumped if the baseline shape changes incompatibly.
-const BASELINE_SCHEMA_VERSION = 1;
+// Bumped if the baseline shape changes incompatibly. v2 flattened the dependency
+// sections to package.json-shaped siblings (dependencies/devDependencies/…) on
+// packageJson, instead of nesting them all under a `dependencies` key.
+const BASELINE_SCHEMA_VERSION = 2;
 const DEP_SECTIONS = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'];
 const PROTECTED_FIELDS = ['exports', 'bin', 'main', 'module', 'types', 'files', 'engines', 'packageManager'];
 
@@ -59,15 +61,17 @@ export function buildBaseline(files) {
     fileHashes[path] = { hash: contentHash(files[path]) };
   }
 
-  let packageJson = { scripts: {}, dependencies: {}, protectedFields: {} };
+  // package.json-shaped: scripts, then each dependency section as its own
+  // sibling (dependencies, devDependencies, …), then protectedFields.
+  let packageJson = { scripts: {}, protectedFields: {} };
   if (files['package.json']) {
     try {
       const pkg = JSON.parse(files['package.json']);
-      const dependencies = {};
-      for (const section of DEP_SECTIONS) if (pkg[section]) dependencies[section] = { ...pkg[section] };
+      packageJson = { scripts: { ...(pkg.scripts || {}) } };
+      for (const section of DEP_SECTIONS) if (pkg[section]) packageJson[section] = { ...pkg[section] };
       const protectedFields = {};
       for (const field of PROTECTED_FIELDS) if (field in pkg) protectedFields[field] = pkg[field];
-      packageJson = { scripts: { ...(pkg.scripts || {}) }, dependencies, protectedFields };
+      packageJson.protectedFields = protectedFields;
     } catch {
       /* leave the empty baseline */
     }

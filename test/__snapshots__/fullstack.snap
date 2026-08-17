@@ -405,11 +405,17 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.js';
 
-createRoot(document.getElementById('root')!).render(
+const root = document.getElementById('root');
+if (!root) throw new Error('Root element #root not found');
+
+createRoot(root).render(
 	<StrictMode>
 		<App />
 	</StrictMode>,
 );
+
+===== apps/web/src/vite-env.d.ts =====
+/// <reference types="vite/client" />
 
 ===== apps/web/tsconfig.json =====
 {
@@ -452,7 +458,7 @@ export default tseslint.config(
   "private": true,
   "type": "module",
   "license": "MIT",
-  "packageManager": "pnpm@9.10.0",
+  "packageManager": "pnpm@10.0.0",
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
@@ -549,7 +555,7 @@ export function describeHealth(h: Health): string {
     ]
   },
   "baseline": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "files": {
       ".editorconfig": {
         "hash": "1811c495930b03"
@@ -627,7 +633,10 @@ export function describeHealth(h: Health): string {
         "hash": "00b00ca1519e68"
       },
       "apps/web/src/main.tsx": {
-        "hash": "1dcbbfea5d9174"
+        "hash": "189088cd1ea5fb"
+      },
+      "apps/web/src/vite-env.d.ts": {
+        "hash": "0e16e625a58658"
       },
       "apps/web/tsconfig.json": {
         "hash": "1386a29efc1b56"
@@ -639,7 +648,7 @@ export function describeHealth(h: Health): string {
         "hash": "0dbb9cc02c24fd"
       },
       "package.json": {
-        "hash": "19b98e26fad77c"
+        "hash": "13d3132dfb6279"
       },
       "packages/shared/package.json": {
         "hash": "194bbbecd6889b"
@@ -674,20 +683,18 @@ export function describeHealth(h: Health): string {
         "format:check": "prettier --check .",
         "typecheck": "turbo typecheck"
       },
-      "dependencies": {
-        "devDependencies": {
-          "turbo": "^2.0.0",
-          "typescript": "^5.9.3",
-          "vitest": "^4.0.0",
-          "prettier": "^3.3.0",
-          "eslint": "^10.0.0",
-          "@eslint/js": "^10.0.0",
-          "typescript-eslint": "^8.0.0",
-          "@types/node": "^24.0.0"
-        }
+      "devDependencies": {
+        "turbo": "^2.0.0",
+        "typescript": "^5.9.3",
+        "vitest": "^4.0.0",
+        "prettier": "^3.3.0",
+        "eslint": "^10.0.0",
+        "@eslint/js": "^10.0.0",
+        "typescript-eslint": "^8.0.0",
+        "@types/node": "^24.0.0"
       },
       "protectedFields": {
-        "packageManager": "pnpm@9.10.0"
+        "packageManager": "pnpm@10.0.0"
       }
     }
   }

@@ -383,7 +383,7 @@ export default tseslint.config(
     ]
   },
   "baseline": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "files": {
       ".editorconfig": {
         "hash": "1811c495930b03"
@@ -463,6 +463,9 @@ export default tseslint.config(
       "src/main.ts": {
         "hash": "167f4fe6db25f5"
       },
+      "src/vite-env.d.ts": {
+        "hash": "0e16e625a58658"
+      },
       "tsconfig.json": {
         "hash": "073069a848aa2d"
       },
@@ -490,28 +493,26 @@ export default tseslint.config(
         "prepare": "simple-git-hooks"
       },
       "dependencies": {
-        "dependencies": {
-          "vue": "^3.4.0"
-        },
-        "devDependencies": {
-          "@eslint/js": "^10.0.0",
-          "@testing-library/dom": "^10.0.0",
-          "@testing-library/vue": "^8.1.0",
-          "@types/node": "^24.0.0",
-          "@vitejs/plugin-vue": "^6.0.0",
-          "@vitest/coverage-v8": "^4.0.0",
-          "eslint": "^10.0.0",
-          "jsdom": "^29.0.0",
-          "lint-staged": "^16.2.0",
-          "prettier": "^3.3.0",
-          "rimraf": "^6.0.0",
-          "simple-git-hooks": "^2.11.0",
-          "typescript": "^5.9.3",
-          "typescript-eslint": "^8.0.0",
-          "vite": "^8.0.0",
-          "vitest": "^4.0.0",
-          "vue-tsc": "^3.0.0"
-        }
+        "vue": "^3.4.0"
+      },
+      "devDependencies": {
+        "@eslint/js": "^10.0.0",
+        "@testing-library/dom": "^10.0.0",
+        "@testing-library/vue": "^8.1.0",
+        "@types/node": "^24.0.0",
+        "@vitejs/plugin-vue": "^6.0.0",
+        "@vitest/coverage-v8": "^4.0.0",
+        "eslint": "^10.0.0",
+        "jsdom": "^29.0.0",
+        "lint-staged": "^16.2.0",
+        "prettier": "^3.3.0",
+        "rimraf": "^6.0.0",
+        "simple-git-hooks": "^2.11.0",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.0.0",
+        "vite": "^8.0.0",
+        "vitest": "^4.0.0",
+        "vue-tsc": "^3.0.0"
       },
       "protectedFields": {
         "engines": {
@@ -547,6 +548,9 @@ import { createApp } from 'vue';
 import App from './App.vue';
 
 createApp(App).mount('#root');
+
+===== src/vite-env.d.ts =====
+/// <reference types="vite/client" />
 
 ===== tsconfig.json =====
 {

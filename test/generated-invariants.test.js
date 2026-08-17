@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fromPreset, generate } from '../src/core/index.js';
+import { V } from '../src/core/versions.js';
+
+const BIOME_VERSION = V['@biomejs/biome'].replace(/^[\^~]/, '');
 
 // These assert on the GENERATED FILES, not just the resolved config. The class
 // of bug they guard against: an option that is parsed and stored on the config
@@ -49,6 +52,11 @@ function sweep() {
   for (const preset of ['ts-lib', 'react-app', 'node-service'])
     for (const packageManager of ['npm', 'pnpm', 'yarn', 'bun'])
       configs.push({ label: `${preset} --pm ${packageManager}`, cfg: fromPreset(preset, { name: 'x', packageManager }) });
+  // Every framework app (Vite) × lint — the surface of #73 (env types, Biome
+  // scanning dist, the main entry's own lint, the misreported build tool).
+  for (const preset of ['react-app', 'vue-app', 'svelte-app'])
+    for (const lint of ['eslint-prettier', 'biome'])
+      configs.push({ label: `${preset} --lint ${lint}`, cfg: fromPreset(preset, { name: 'x', lint }) });
   // Monorepo layouts across the non-default package managers too.
   for (const preset of ['monorepo', 'fullstack'])
     for (const packageManager of ['npm', 'yarn', 'bun'])
@@ -144,6 +152,62 @@ test('every yarn project targets modern Yarn (Berry via Corepack)', () => {
     if (ci) {
       assert.ok(ci.includes('corepack enable'), `${label}: yarn CI must enable Corepack`);
       assert.ok(!ci.includes('yarn install --frozen-lockfile'), `${label}: Berry uses --immutable, not --frozen-lockfile`);
+    }
+  }
+});
+
+test('every Vite TS app ships vite/client types so tsc sees import.meta.env (#73.1)', () => {
+  for (const { label, cfg } of sweep()) {
+    if (!(cfg.viteBuild && cfg.hasApp && cfg.isTs)) continue;
+    const { files } = generate(cfg);
+    const envDts = Object.entries(files).find(([p]) => p.endsWith('src/vite-env.d.ts'));
+    assert.ok(envDts, `${label}: Vite TS app is missing src/vite-env.d.ts`);
+    assert.match(envDts[1], /vite\/client/, `${label}: vite-env.d.ts must reference vite/client`);
+  }
+});
+
+test('biome.json excludes build output and pins the installed schema (#73.2, #73.4)', () => {
+  for (const { label, cfg } of sweep()) {
+    if (cfg.lint !== 'biome') continue;
+    const { files } = generate(cfg);
+    const biome = JSON.parse(files['biome.json']);
+    assert.equal(biome.vcs?.useIgnoreFile, true, `${label}: biome should respect .gitignore (vcs.useIgnoreFile)`);
+    assert.ok((biome.files?.includes || []).some((p) => p === '!dist' || p === '!**/dist'), `${label}: biome must exclude dist explicitly`);
+    assert.ok(
+      String(biome.$schema).includes(`/schemas/${BIOME_VERSION}/`),
+      `${label}: biome $schema (${biome.$schema}) must match the pinned @biomejs/biome ${BIOME_VERSION}`,
+    );
+  }
+});
+
+test('no generated entry point uses a non-null assertion on the root element (#73.3)', () => {
+  for (const { label, cfg } of sweep()) {
+    const { files } = generate(cfg);
+    for (const [path, content] of Object.entries(files)) {
+      if (!/(^|\/)main\.(t|j)sx?$/.test(path)) continue;
+      assert.ok(!content.includes("getElementById('root')!"), `${label}: ${path} uses a non-null assertion on #root`);
+    }
+  }
+});
+
+test('a framework app reports Vite (not the standalone bundler) as its build tool (#73.5)', () => {
+  for (const { label, cfg } of sweep()) {
+    if (!(cfg.viteBuild && cfg.hasApp)) continue;
+    const { summary } = generate(cfg);
+    assert.ok(summary.stack.includes('Vite'), `${label}: summary should list Vite`);
+    assert.ok(!summary.stack.includes('tsup'), `${label}: summary must not list tsup for a Vite app`);
+  }
+});
+
+test('the packkit.json baseline stores dependency sections flat, not nested (#73.6)', () => {
+  for (const { label, cfg } of sweep()) {
+    const { files } = generate(cfg);
+    const pj = JSON.parse(files['packkit.json']).baseline?.packageJson;
+    if (!pj?.dependencies) continue;
+    // Each value must be a version string — a nested { dependencies, devDependencies }
+    // object here is the #73.6 malformation.
+    for (const [name, spec] of Object.entries(pj.dependencies)) {
+      assert.equal(typeof spec, 'string', `${label}: baseline dependencies.${name} should be a version string, not a nested object`);
     }
   }
 });

@@ -106,7 +106,9 @@ function summarize(cfg, files) {
       cfg.isTs ? 'TypeScript' : 'JavaScript',
       cfg.moduleFormat.toUpperCase(),
       cfg.target.join('+'),
-      cfg.bundler !== 'none' ? cfg.bundler : (cfg.isTs ? 'tsc' : 'no-build'),
+      // Framework apps build with Vite, not the standalone bundler (which they
+      // don't use) — so report the tool the project actually runs.
+      cfg.viteBuild && cfg.hasApp ? 'Vite' : cfg.bundler !== 'none' ? cfg.bundler : cfg.isTs ? 'tsc' : 'no-build',
       cfg.test !== 'none' ? cfg.test : null,
       cfg.lint !== 'none' ? cfg.lint : null,
       cfg.release !== 'none' ? cfg.release : null,

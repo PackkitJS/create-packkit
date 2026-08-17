@@ -1,5 +1,6 @@
 import { toJson } from '../render.js';
 import { V } from '../versions.js';
+import { biomeConfig } from '../biome-config.js';
 
 export default {
   id: 'lint',
@@ -34,12 +35,7 @@ export default {
       pkg.scripts.lint = 'oxlint';
       pkg.devDependencies.oxlint = V.oxlint;
     } else if (cfg.lint === 'biome') {
-      files['biome.json'] = toJson({
-        $schema: 'https://biomejs.dev/schemas/2.1.2/schema.json',
-        formatter: { enabled: true, indentStyle: 'tab', lineWidth: 100 },
-        linter: { enabled: true },
-        javascript: { formatter: { quoteStyle: 'single', trailingCommas: 'all' } },
-      });
+      files['biome.json'] = toJson(biomeConfig());
       pkg.scripts.lint = 'biome lint .';
       pkg.scripts['lint:fix'] = 'biome lint --write .';
       pkg.scripts.format = 'biome format --write .';

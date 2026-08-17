@@ -30,7 +30,13 @@ function react(cfg, files, pkg, forApp) {
       `import { createRoot } from 'react-dom/client';`,
       `import { App } from './App.${x === 'tsx' ? 'js' : 'js'}';`,
       ``,
-      `createRoot(document.getElementById('root')${cfg.isTs ? '!' : ''}).render(`,
+      // A guarded lookup instead of a non-null assertion: it's honest about the
+      // failure and keeps the fresh scaffold clean under a strict linter (Biome's
+      // noNonNullAssertion flags the `!` form).
+      `const root = document.getElementById('root');`,
+      `if (!root) throw new Error('Root element #root not found');`,
+      ``,
+      `createRoot(root).render(`,
       `\t<StrictMode><App /></StrictMode>,`,
       `);`,
       ``,
@@ -110,7 +116,11 @@ function svelte(cfg, files, pkg, forApp) {
       `import { mount } from 'svelte';`,
       `import App from './App.svelte';`,
       ``,
-      `const app = mount(App, { target: document.getElementById('root')${cfg.isTs ? '!' : ''} });`,
+      // Guarded lookup rather than a non-null assertion (clean under strict lint).
+      `const target = document.getElementById('root');`,
+      `if (!target) throw new Error('Root element #root not found');`,
+      ``,
+      `const app = mount(App, { target });`,
       `export default app;`,
       ``,
     ].join('\n');

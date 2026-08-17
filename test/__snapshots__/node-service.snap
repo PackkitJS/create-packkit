@@ -413,7 +413,7 @@ export default tseslint.config(
     ]
   },
   "baseline": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "files": {
       ".dockerignore": {
         "hash": "0589aeaa70c9f9"
@@ -524,25 +524,23 @@ export default tseslint.config(
         "prepare": "simple-git-hooks"
       },
       "dependencies": {
-        "dependencies": {
-          "@hono/node-server": "^2.0.0",
-          "hono": "^4.5.0"
-        },
-        "devDependencies": {
-          "@eslint/js": "^10.0.0",
-          "@types/node": "^24.0.0",
-          "@vitest/coverage-v8": "^4.0.0",
-          "eslint": "^10.0.0",
-          "lint-staged": "^16.2.0",
-          "prettier": "^3.3.0",
-          "rimraf": "^6.0.0",
-          "simple-git-hooks": "^2.11.0",
-          "tsup": "^8.0.0",
-          "tsx": "^4.0.0",
-          "typescript": "^5.9.3",
-          "typescript-eslint": "^8.0.0",
-          "vitest": "^4.0.0"
-        }
+        "@hono/node-server": "^2.0.0",
+        "hono": "^4.5.0"
+      },
+      "devDependencies": {
+        "@eslint/js": "^10.0.0",
+        "@types/node": "^24.0.0",
+        "@vitest/coverage-v8": "^4.0.0",
+        "eslint": "^10.0.0",
+        "lint-staged": "^16.2.0",
+        "prettier": "^3.3.0",
+        "rimraf": "^6.0.0",
+        "simple-git-hooks": "^2.11.0",
+        "tsup": "^8.0.0",
+        "tsx": "^4.0.0",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.0.0",
+        "vitest": "^4.0.0"
       },
       "protectedFields": {
         "exports": {

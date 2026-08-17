@@ -383,7 +383,7 @@ export default tseslint.config(
     ]
   },
   "baseline": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "files": {
       ".editorconfig": {
         "hash": "1811c495930b03"
@@ -461,7 +461,10 @@ export default tseslint.config(
         "hash": "0633b08588e17f"
       },
       "src/main.ts": {
-        "hash": "17cd6feeef3237"
+        "hash": "1f2ee569a46931"
+      },
+      "src/vite-env.d.ts": {
+        "hash": "0e16e625a58658"
       },
       "svelte.config.js": {
         "hash": "125eb000c83245"
@@ -493,28 +496,26 @@ export default tseslint.config(
         "prepare": "simple-git-hooks"
       },
       "dependencies": {
-        "dependencies": {
-          "svelte": "^5.0.0"
-        },
-        "devDependencies": {
-          "@eslint/js": "^10.0.0",
-          "@sveltejs/vite-plugin-svelte": "^7.0.0",
-          "@testing-library/dom": "^10.0.0",
-          "@testing-library/svelte": "^5.2.0",
-          "@types/node": "^24.0.0",
-          "@vitest/coverage-v8": "^4.0.0",
-          "eslint": "^10.0.0",
-          "jsdom": "^29.0.0",
-          "lint-staged": "^16.2.0",
-          "prettier": "^3.3.0",
-          "rimraf": "^6.0.0",
-          "simple-git-hooks": "^2.11.0",
-          "svelte-check": "^4.0.0",
-          "typescript": "^5.9.3",
-          "typescript-eslint": "^8.0.0",
-          "vite": "^8.0.0",
-          "vitest": "^4.0.0"
-        }
+        "svelte": "^5.0.0"
+      },
+      "devDependencies": {
+        "@eslint/js": "^10.0.0",
+        "@sveltejs/vite-plugin-svelte": "^7.0.0",
+        "@testing-library/dom": "^10.0.0",
+        "@testing-library/svelte": "^5.2.0",
+        "@types/node": "^24.0.0",
+        "@vitest/coverage-v8": "^4.0.0",
+        "eslint": "^10.0.0",
+        "jsdom": "^29.0.0",
+        "lint-staged": "^16.2.0",
+        "prettier": "^3.3.0",
+        "rimraf": "^6.0.0",
+        "simple-git-hooks": "^2.11.0",
+        "svelte-check": "^4.0.0",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.0.0",
+        "vite": "^8.0.0",
+        "vitest": "^4.0.0"
       },
       "protectedFields": {
         "engines": {
@@ -547,8 +548,14 @@ describe('App', () => {
 import { mount } from 'svelte';
 import App from './App.svelte';
 
-const app = mount(App, { target: document.getElementById('root')! });
+const target = document.getElementById('root');
+if (!target) throw new Error('Root element #root not found');
+
+const app = mount(App, { target });
 export default app;
+
+===== src/vite-env.d.ts =====
+/// <reference types="vite/client" />
 
 ===== svelte.config.js =====
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';

@@ -23,6 +23,9 @@ export default {
     if (cfg.hasApp) {
       // Front-end SPA — not a published package.
       files[`vite.config.${cfg.ext}`] = [p.import, ``, `import { defineConfig } from 'vite';`, ``, `export default defineConfig({`, `\tplugins: [${p.call}],`, `});`, ``].join('\n');
+      // Vite's client types (import.meta.env, ?url imports, etc.); without this
+      // `tsc --noEmit` fails the moment app code touches import.meta.env.
+      if (cfg.isTs) files['src/vite-env.d.ts'] = '/// <reference types="vite/client" />\n';
       pkg.private = true;
       pkg.scripts.dev = 'vite';
       // React/Vue get a type-check before build; Svelte types need svelte-check

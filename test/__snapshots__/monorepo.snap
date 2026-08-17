@@ -270,7 +270,7 @@ export default tseslint.config(
   "private": true,
   "type": "module",
   "license": "MIT",
-  "packageManager": "pnpm@9.10.0",
+  "packageManager": "pnpm@10.0.0",
   "scripts": {
     "build": "turbo build",
     "test": "turbo test",
@@ -413,7 +413,7 @@ export function shout(name: string): string {
     "packageManager": "pnpm"
   },
   "baseline": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "files": {
       ".changeset/README.md": {
         "hash": "0e16f282026359"
@@ -473,7 +473,7 @@ export function shout(name: string): string {
         "hash": "0dbb9cc02c24fd"
       },
       "package.json": {
-        "hash": "1957cd67cc6c8f"
+        "hash": "1e593748f12243"
       },
       "packages/core/package.json": {
         "hash": "019c2eeee77002"
@@ -522,22 +522,20 @@ export function shout(name: string): string {
         "version": "changeset version",
         "release": "turbo build && changeset publish"
       },
-      "dependencies": {
-        "devDependencies": {
-          "turbo": "^2.0.0",
-          "typescript": "^5.9.3",
-          "tsup": "^8.0.0",
-          "vitest": "^4.0.0",
-          "prettier": "^3.3.0",
-          "eslint": "^10.0.0",
-          "@eslint/js": "^10.0.0",
-          "typescript-eslint": "^8.0.0",
-          "@changesets/cli": "^2.27.0",
-          "@types/node": "^24.0.0"
-        }
+      "devDependencies": {
+        "turbo": "^2.0.0",
+        "typescript": "^5.9.3",
+        "tsup": "^8.0.0",
+        "vitest": "^4.0.0",
+        "prettier": "^3.3.0",
+        "eslint": "^10.0.0",
+        "@eslint/js": "^10.0.0",
+        "typescript-eslint": "^8.0.0",
+        "@changesets/cli": "^2.27.0",
+        "@types/node": "^24.0.0"
       },
       "protectedFields": {
-        "packageManager": "pnpm@9.10.0"
+        "packageManager": "pnpm@10.0.0"
       }
     }
   }

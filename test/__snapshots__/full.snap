@@ -518,7 +518,7 @@ export default tseslint.config(
     ]
   },
   "baseline": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "files": {
       ".changeset/README.md": {
         "hash": "0e16f282026359"
@@ -642,22 +642,20 @@ export default tseslint.config(
         "version": "changeset version",
         "release": "npm run build && changeset publish"
       },
-      "dependencies": {
-        "devDependencies": {
-          "@changesets/cli": "^2.27.0",
-          "@eslint/js": "^10.0.0",
-          "@types/node": "^24.0.0",
-          "@vitest/coverage-v8": "^4.0.0",
-          "eslint": "^10.0.0",
-          "lint-staged": "^16.2.0",
-          "prettier": "^3.3.0",
-          "rimraf": "^6.0.0",
-          "simple-git-hooks": "^2.11.0",
-          "tsup": "^8.0.0",
-          "typescript": "^5.9.3",
-          "typescript-eslint": "^8.0.0",
-          "vitest": "^4.0.0"
-        }
+      "devDependencies": {
+        "@changesets/cli": "^2.27.0",
+        "@eslint/js": "^10.0.0",
+        "@types/node": "^24.0.0",
+        "@vitest/coverage-v8": "^4.0.0",
+        "eslint": "^10.0.0",
+        "lint-staged": "^16.2.0",
+        "prettier": "^3.3.0",
+        "rimraf": "^6.0.0",
+        "simple-git-hooks": "^2.11.0",
+        "tsup": "^8.0.0",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.0.0",
+        "vitest": "^4.0.0"
       },
       "protectedFields": {
         "exports": {
